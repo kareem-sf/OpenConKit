@@ -1,0 +1,24 @@
+{
+  "app": {
+    "name": "OpenConKit",
+    "tagline": "مجموعة الأدوات مفتوحة المصدر لمهنيي قطاع الإنشاءات."
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "projects": "المشاريع",
+    "settings": "الإعدادات"
+  },
+  "tools": {
+    "boqInspector": {
+      "name": "مدقق جداول الكميات",
+      "description": "مراجعة آلية لجودة جداول الكميات."
+    }
+  },
+  "settings": {
+    "theme": "المظهر",
+    "themeSystem": "تلقائي (النظام)",
+    "themeLight": "فاتح",
+    "themeDark": "داكن",
+    "language": "اللغة"
+  }
+}

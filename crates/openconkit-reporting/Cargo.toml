@@ -1,0 +1,25 @@
+[package]
+name = "openconkit-reporting"
+description = "OpenConKit reporting: XLSX exports via rust_xlsxwriter; PDF via Typst (optional feature)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[features]
+# PDF export via Typst is implemented in the reporting phase (see ROADMAP.md).
+# It is an opt-in feature so the foundation build stays fast.
+default = []
+pdf = ["dep:typst", "dep:typst-pdf"]
+
+[dependencies]
+rust_xlsxwriter.workspace = true
+thiserror.workspace = true
+typst = { workspace = true, optional = true }
+typst-pdf = { workspace = true, optional = true }
+
+[dev-dependencies]
+calamine.workspace = true

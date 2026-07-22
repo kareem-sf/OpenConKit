@@ -1,0 +1,36 @@
+# Normalize text files to LF in the repository.
+* text=auto eol=lf
+
+# Explicit text types
+*.rs    text eol=lf
+*.toml  text eol=lf
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.js    text eol=lf
+*.mjs   text eol=lf
+*.json  text eol=lf
+*.json5 text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.md    text eol=lf
+*.css   text eol=lf
+*.html  text eol=lf
+*.svg   text eol=lf
+*.sql   text eol=lf
+
+# Windows scripts keep CRLF
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# Binary markers
+*.png   binary
+*.ico   binary
+*.icns  binary
+*.xlsx  binary
+*.xls   binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.exe   binary
+*.dll   binary

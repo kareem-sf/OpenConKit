@@ -1,0 +1,23 @@
+{
+  "name": "@openconkit/i18n",
+  "version": "0.0.1",
+  "private": true,
+  "description": "OpenConKit i18n resources (en + ar), types and parity-test helpers.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "i18next": "26.3.6",
+    "react-i18next": "17.0.11"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}

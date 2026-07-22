@@ -1,0 +1,113 @@
+/*
+ * OpenConKit design tokens (Tailwind CSS v4, CSS-first).
+ *
+ * Palette: restrained professional scheme with a construction-safety amber
+ * accent. Light and dark schemes are driven by the `data-theme` attribute
+ * on <html>; all semantic colors are exposed as Tailwind utilities through
+ * `@theme inline`. Contrast targets WCAG AA (>= 4.5:1 for text).
+ */
+
+@theme {
+  /* Brand accent scale (safety amber family). */
+  --color-brand-50: #fffbeb;
+  --color-brand-100: #fef3c7;
+  --color-brand-200: #fde68a;
+  --color-brand-300: #fcd34d;
+  --color-brand-400: #fbbf24;
+  --color-brand-500: #f59e0b;
+  --color-brand-600: #d97706;
+  --color-brand-700: #b45309;
+  --color-brand-800: #92400e;
+  --color-brand-900: #78350f;
+  --color-brand-950: #451a03;
+}
+
+/* Light scheme (default). */
+:root {
+  --surface-base: #ffffff;
+  --surface-muted: #f5f5f4;
+  --surface-raised: #ffffff;
+  --border-default: #d6d3d1;
+
+  --content-primary: #1c1917;
+  --content-secondary: #44403c;
+  --content-inverse: #ffffff;
+
+  --accent: #b45309; /* brand-700: AA on white for large text and UI */
+  --accent-strong: #92400e; /* brand-800: AA for body text on white */
+  --accent-subtle: #fef3c7;
+  --on-accent: #ffffff;
+
+  --status-success: #166534;
+  --status-warning: #92400e;
+  --status-error: #b91c1c;
+  --status-info: #1d4ed8;
+  --status-success-subtle: #dcfce7;
+  --status-warning-subtle: #fef3c7;
+  --status-error-subtle: #fee2e2;
+  --status-info-subtle: #dbeafe;
+
+  --focus-ring: #b45309;
+}
+
+/* Dark scheme. */
+[data-theme="dark"] {
+  --surface-base: #1c1917;
+  --surface-muted: #292524;
+  --surface-raised: #44403c;
+  --border-default: #57534e;
+
+  --content-primary: #fafaf9;
+  --content-secondary: #d6d3d1;
+  --content-inverse: #1c1917;
+
+  --accent: #fbbf24; /* brand-400: AA on dark surfaces */
+  --accent-strong: #fcd34d;
+  --accent-subtle: #451a03;
+  --on-accent: #1c1917;
+
+  --status-success: #4ade80;
+  --status-warning: #fbbf24;
+  --status-error: #f87171;
+  --status-info: #60a5fa;
+  --status-success-subtle: #052e16;
+  --status-warning-subtle: #451a03;
+  --status-error-subtle: #450a0a;
+  --status-info-subtle: #172554;
+
+  --focus-ring: #fbbf24;
+}
+
+/* Semantic tokens as Tailwind utilities (resolved at runtime per scheme). */
+@theme inline {
+  --color-surface-base: var(--surface-base);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-raised: var(--surface-raised);
+  --color-border-default: var(--border-default);
+
+  --color-content-primary: var(--content-primary);
+  --color-content-secondary: var(--content-secondary);
+  --color-content-inverse: var(--content-inverse);
+
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-on-accent: var(--on-accent);
+
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-error: var(--status-error);
+  --color-status-info: var(--status-info);
+  --color-status-success-subtle: var(--status-success-subtle);
+  --color-status-warning-subtle: var(--status-warning-subtle);
+  --color-status-error-subtle: var(--status-error-subtle);
+  --color-status-info-subtle: var(--status-info-subtle);
+
+  --color-focus-ring: var(--focus-ring);
+}
+
+/* Shared focus-visible treatment. */
+@utility focus-ring {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

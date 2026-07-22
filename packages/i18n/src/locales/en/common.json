@@ -1,0 +1,24 @@
+{
+  "app": {
+    "name": "OpenConKit",
+    "tagline": "The open-source toolkit for construction professionals."
+  },
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "settings": "Settings"
+  },
+  "tools": {
+    "boqInspector": {
+      "name": "BOQ Inspector",
+      "description": "Automated Bill of Quantities quality review."
+    }
+  },
+  "settings": {
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language"
+  }
+}

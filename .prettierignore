@@ -1,0 +1,14 @@
+node_modules
+dist
+target
+coverage
+gen
+pnpm-lock.yaml
+Cargo.lock
+.openconkit
+fixtures/generated
+crates/openconkit-desktop/icons
+**/binaries
+*.log
+THIRD_PARTY_NOTICES.md
+CHANGELOG.md

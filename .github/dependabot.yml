@@ -1,0 +1,40 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      frontend:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      tooling:
+        patterns:
+          - "eslint*"
+          - "typescript*"
+          - "prettier"
+          - "vitest"
+
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      tauri:
+        patterns:
+          - "tauri*"
+      workspace-shared:
+        patterns:
+          - "serde*"
+          - "thiserror"
+          - "anyhow"
+          - "jiff"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

@@ -1,0 +1,70 @@
+name: Bug report
+description: Report a defect in OpenConKit
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. For security issues, use
+        [Security Advisories](https://github.com/kareem-sf/openconkit/security/advisories/new) instead.
+  - type: input
+    id: version
+    attributes:
+      label: OpenConKit version
+      description: From Settings > About, or the installer name.
+      placeholder: "0.0.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Affected tool / area
+      options:
+        - BOQ Inspector
+        - App shell / navigation
+        - Reports (XLSX/PDF)
+        - Installation / update
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, expected behavior, actual behavior.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. Expected ..., saw ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: |
+        Paste excerpts from %USERPROFILE%\.openconkit\logs if relevant.
+        Remove any sensitive content first - logs must not contain cell
+        contents or credentials.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues for duplicates.
+          required: true
+        - label: I removed confidential data from attachments and logs.
+          required: true

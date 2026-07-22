@@ -1,0 +1,5 @@
+# Shared Clippy configuration.
+# unwrap/expect/panic are denied in production code via crate-level lints;
+# #[cfg(test)] modules opt out with a module-level allow (see AGENTS.md).
+msrv = "1.85"
+avoid-breaking-exported-api = true

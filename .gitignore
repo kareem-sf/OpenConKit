@@ -1,0 +1,57 @@
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock.orig
+
+# Node / pnpm
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Tauri
+crates/openconkit-desktop/gen/
+
+# Staged Codex sidecar binaries (fetched at build time, never committed)
+**/binaries/
+
+# Intermediate raster produced by scripts/generate-icons.mjs
+branding/icon-1024.png
+
+# Local app data used during development (OPENCONKIT_HOME)
+.openconkit/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# OS noise
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+$RECYCLE.BIN/
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+
+# Test / coverage output
+coverage/
+
+# Generated binary fixtures (reproducible from source specs)
+fixtures/generated/*
+!fixtures/generated/.gitkeep

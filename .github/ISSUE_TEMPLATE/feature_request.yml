@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest an idea for OpenConKit
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: check `ROADMAP.md` for planned tools and deferred
+        features.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What construction-workflow problem does this address?
+      placeholder: "As a quantity surveyor, I need ..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should OpenConKit do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds or other tools you use today.
+  - type: checkboxes
+    id: fit
+    attributes:
+      label: Fit check
+      options:
+        - label: This works offline / local-first (no cloud dependency).
+          required: true
+        - label: This does not require telemetry or accounts.
+          required: true

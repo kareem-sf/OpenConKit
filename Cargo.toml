@@ -1,0 +1,56 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+# Canonical version source is the root VERSION file.
+# This value is written and verified by scripts/version-sync.mjs / scripts/version-check.mjs.
+version = "0.0.1"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/kareem-sf/openconkit"
+homepage = "https://github.com/kareem-sf/openconkit"
+rust-version = "1.85"
+
+[workspace.dependencies]
+# Internal crates
+openconkit-domain = { path = "crates/openconkit-domain" }
+openconkit-application = { path = "crates/openconkit-application" }
+openconkit-tool-sdk = { path = "crates/openconkit-tool-sdk" }
+
+# Desktop host
+tauri = { version = "2.11.5" }
+tauri-build = { version = "2.6.0" }
+
+# Spreadsheet ingestion
+calamine = { version = "0.36.0" }
+
+# Storage
+rusqlite = { version = "0.40.1", features = ["bundled"] }
+
+# Reporting
+rust_xlsxwriter = { version = "0.96.0" }
+# PDF via Typst is an optional feature of openconkit-reporting (wired in the
+# reporting phase); pinned here so every build resolves identical versions.
+typst = { version = "0.15.1" }
+typst-pdf = { version = "0.15.1" }
+
+# Contracts
+ts-rs = { version = "12.0.1" }
+
+# Shared utilities
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+thiserror = { version = "2" }
+anyhow = { version = "1" }
+sha2 = { version = "0.10" }
+# Timestamps: jiff (see docs/adr/0007-timestamp-library.md)
+jiff = { version = "0.2", features = ["serde"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "unwind"
+strip = "symbols"
+debug = false

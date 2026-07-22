@@ -1,0 +1,39 @@
+{
+  "name": "openconkit",
+  "version": "0.0.1",
+  "private": true,
+  "description": "The open-source toolkit for construction professionals.",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@11.16.0",
+  "engines": {
+    "node": ">=26.0.0"
+  },
+  "scripts": {
+    "dev": "cd crates/openconkit-desktop && tauri dev",
+    "build": "pnpm -r --if-present build",
+    "test": "pnpm -r --if-present test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "version:sync": "node scripts/version-sync.mjs",
+    "version:check": "node scripts/version-check.mjs",
+    "tool:new": "node scripts/tool-new.mjs",
+    "icons:generate": "node scripts/generate-icons.mjs",
+    "tauri": "cd crates/openconkit-desktop && tauri"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@tauri-apps/cli": "2.11.4",
+    "@types/node": "^24.0.0",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.7.0",
+    "prettier": "3.9.6",
+    "sharp": "0.35.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.65.0"
+  }
+}

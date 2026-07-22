@@ -1,0 +1,16 @@
+[package]
+name = "openconkit-desktop"
+description = "OpenConKit desktop host: Tauri application shell."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+default-run = "openconkit-desktop"
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[dependencies]
+serde.workspace = true
+tauri.workspace = true
+thiserror.workspace = true

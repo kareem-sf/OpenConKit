@@ -1,0 +1,20 @@
+{
+  "name": "@openconkit/contracts",
+  "version": "0.0.1",
+  "private": true,
+  "description": "OpenConKit contracts: ts-rs generated TypeScript bindings and zod schemas. Generated files are committed and drift-checked in CI.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}

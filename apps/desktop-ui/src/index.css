@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@import "@openconkit/ui/tokens.css";
+
+/* Base application shell styling, driven by design tokens. */
+:root {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--surface-base);
+  color: var(--content-primary);
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}

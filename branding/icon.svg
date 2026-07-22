@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="OpenConKit app icon">
+  <!-- Square app-icon source for scripts/generate-icons.mjs.
+       Dark slate tile with the OpenConKit mark in safety amber. -->
+  <rect width="1024" height="1024" rx="224" fill="#1C1917" />
+  <g stroke="#44403C" stroke-width="4">
+    <path d="M256 96v832M512 96v832M768 96v832M96 256h832M96 512h832M96 768h832" />
+  </g>
+  <path d="M768 288H288v448h480" fill="none" stroke="#FAFAF9" stroke-width="56" stroke-linecap="square" />
+  <rect x="384" y="576" width="144" height="144" fill="#F59E0B" />
+  <rect x="560" y="448" width="144" height="144" fill="#FBBF24" />
+  <rect x="736" y="320" width="144" height="144" fill="#FDE68A" />
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="OpenConKit logo">
+  <!-- OpenConKit mark: an open frame on a construction grid, with modular
+       kit blocks stepping out through the opening. Original artwork. -->
+  <g stroke="#E7E5E4" stroke-width="1">
+    <path d="M24 8v80M48 8v80M72 8v80M8 24h80M8 48h80M8 72h80" />
+  </g>
+  <path d="M72 26H24v44h48" fill="none" stroke="#1C1917" stroke-width="6" stroke-linecap="square" />
+  <rect x="34" y="52" width="14" height="14" fill="#B45309" />
+  <rect x="52" y="40" width="14" height="14" fill="#D97706" />
+  <rect x="70" y="28" width="14" height="14" fill="#F59E0B" />
+</svg>

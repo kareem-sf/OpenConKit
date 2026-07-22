@@ -1,0 +1,9 @@
+{
+  "version": "0.145.0",
+  "releaseTag": "rust-v0.145.0",
+  "checksums": {
+    "x86_64-pc-windows-msvc": "TO_FILL_BY_FETCH_SCRIPT",
+    "x86_64-unknown-linux-gnu": "TO_FILL_BY_FETCH_SCRIPT",
+    "aarch64-apple-darwin": "TO_FILL_BY_FETCH_SCRIPT"
+  }
+}
