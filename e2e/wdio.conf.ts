@@ -8,6 +8,7 @@ export const config = {
   runner: "local",
   specs: ["./specs/**/*.e2e.ts"],
   maxInstances: 1,
+  autoXvfb: false,
   capabilities: [
     {
       browserName: "tauri",
