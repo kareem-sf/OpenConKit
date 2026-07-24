@@ -314,7 +314,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p feed
-          gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" > feed/release.json
+          release_id="$(
+            gh release view "${GITHUB_REF_NAME}" \
+              --json databaseId \
+              --jq .databaseId
+          )"
+          [[ "${release_id}" =~ ^[0-9]+$ ]]
+          gh api "repos/${GITHUB_REPOSITORY}/releases/${release_id}" > feed/release.json
           if [[ "${GITHUB_REF_NAME}" == *-* ]]; then
             channel=beta
           else
