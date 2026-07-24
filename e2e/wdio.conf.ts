@@ -1,7 +1,16 @@
+import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const projectRoot = resolve(".");
 const devServerUrl = "http://127.0.0.1:1421/?openconkit-e2e=1";
+const chromedriverDirectory = process.env.CHROMEWEBDRIVER;
+const preinstalledChromedriver = chromedriverDirectory
+  ? join(chromedriverDirectory, process.platform === "win32" ? "chromedriver.exe" : "chromedriver")
+  : undefined;
+const chromedriverBinary =
+  preinstalledChromedriver && existsSync(preinstalledChromedriver)
+    ? { binary: preinstalledChromedriver }
+    : {};
 
 export const config = {
   runner: "local",
@@ -17,6 +26,7 @@ export const config = {
       "wdio:enforceWebDriverClassic": true,
       "wdio:chromedriverOptions": {
         cacheDir: join(projectRoot, "target", "wdio-driver-cache"),
+        ...chromedriverBinary,
       },
     },
   ],
