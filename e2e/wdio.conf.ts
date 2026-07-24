@@ -6,7 +6,7 @@ const devServerUrl = "http://127.0.0.1:1421/?openconkit-e2e=1";
 
 export const config = {
   runner: "local",
-  specs: ["./specs/**/*.e2e.ts"],
+  specs: ["./e2e/specs/**/*.e2e.ts"],
   maxInstances: 1,
   capabilities: [
     {

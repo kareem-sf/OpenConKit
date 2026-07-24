@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { readFile, rm } from "node:fs/promises";
+import { readFile, readdir, rm } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { createServer } from "node:net";
 import { dirname, join, resolve } from "node:path";
@@ -8,6 +8,7 @@ const root = resolve(".");
 const sentinel = join(root, "target", "e2e", "wdio-result.json");
 const cli = join(root, "node_modules", "@wdio", "cli", "bin", "wdio.js");
 const desktopUi = join(root, "apps", "desktop-ui");
+const specRoot = join(root, "e2e", "specs");
 const requireFromDesktopUi = createRequire(join(desktopUi, "package.json"));
 const vitePackage = requireFromDesktopUi.resolve("vite/package.json");
 const viteCli = join(dirname(vitePackage), "bin", "vite.js");
@@ -17,6 +18,13 @@ const devServerUrl = `http://${devServerHost}:${devServerPort}/`;
 const expectedTests = 4;
 
 await rm(sentinel, { force: true });
+const specFiles = (await readdir(specRoot, { recursive: true }))
+  .filter((entry) => entry.endsWith(".e2e.ts"))
+  .map((entry) => resolve(specRoot, entry))
+  .sort();
+if (specFiles.length === 0) {
+  throw new Error(`No E2E spec files were found under ${specRoot}.`);
+}
 
 function delay(milliseconds) {
   return new Promise((resolveDelay) => {
@@ -112,7 +120,7 @@ const vite = spawn(
 let exitCode;
 try {
   await waitForDevServer(vite);
-  const wdioArguments = [cli, "run", "e2e/wdio.conf.ts"];
+  const wdioArguments = [cli, "run", "e2e/wdio.conf.ts", "--spec", ...specFiles];
   if (process.env.CI) {
     wdioArguments.push("--logLevel", "trace");
   }
