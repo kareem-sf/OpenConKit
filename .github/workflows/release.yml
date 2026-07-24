@@ -107,6 +107,11 @@ jobs:
       max-parallel: 1
       matrix:
         include:
+          - name: macOS universal
+            runner: macos-latest
+            target: universal-apple-darwin
+            rust_targets: x86_64-apple-darwin aarch64-apple-darwin
+            asset_pattern: "[name]_[version]_macos_[arch][_setup][ext]"
           - name: Windows x64
             runner: windows-latest
             target: x86_64-pc-windows-msvc
@@ -119,11 +124,6 @@ jobs:
             # tauri-action reports Debian/AppImage x86_64 as "amd64";
             # publish the product-facing architecture label consistently.
             asset_pattern: "[name]_[version]_linux_x64[_setup][ext]"
-          - name: macOS universal
-            runner: macos-latest
-            target: universal-apple-darwin
-            rust_targets: x86_64-apple-darwin aarch64-apple-darwin
-            asset_pattern: "[name]_[version]_macos_[arch][_setup][ext]"
     steps:
       - name: Check out tagged source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
