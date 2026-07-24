@@ -111,19 +111,16 @@ jobs:
             runner: windows-latest
             target: x86_64-pc-windows-msvc
             rust_targets: x86_64-pc-windows-msvc
-            config: tauri.windows.conf.json
             asset_pattern: "[name]_[version]_windows_[arch][_setup].[ext]"
           - name: Linux x64
             runner: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             rust_targets: x86_64-unknown-linux-gnu
-            config: tauri.linux.conf.json
             asset_pattern: "[name]_[version]_linux_[arch][_setup].[ext]"
           - name: macOS universal
             runner: macos-latest
             target: universal-apple-darwin
             rust_targets: x86_64-apple-darwin aarch64-apple-darwin
-            config: tauri.macos.conf.json
             asset_pattern: "[name]_[version]_macos_[arch][_setup].[ext]"
     steps:
       - name: Check out tagged source
@@ -182,7 +179,9 @@ jobs:
           uploadUpdaterSignatures: true
           releaseAssetNamePattern: ${{ matrix.asset_pattern }}
           retryAttempts: 2
-          args: --target ${{ matrix.target }} --config ${{ matrix.config }}
+          # Tauri discovers and merges tauri.<platform>.conf.json from the
+          # desktop crate automatically for each target.
+          args: --target ${{ matrix.target }}
 
       - name: Verify and upload universal macOS app ZIP
         if: matrix.runner == 'macos-latest'
