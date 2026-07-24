@@ -104,10 +104,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       return;
     }
     set({ loading: true, errorCode: null });
-    const e2eMode =
-      import.meta.env.DEV &&
-      new URLSearchParams(window.location.search).get("openconkit-e2e") === "1";
-    if (import.meta.env.DEV && !e2eMode && !desktopRuntimeAvailable()) {
+    if (import.meta.env.DEV && !desktopRuntimeAvailable()) {
       const { previewData } = await import("../dev/previewData");
       const preview = previewData();
       const selectedProjectId = preview.projects[0]?.id ?? null;

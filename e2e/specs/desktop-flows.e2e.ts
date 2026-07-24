@@ -27,6 +27,12 @@ async function mockCommand(command: string, value: unknown) {
 
 async function prepareApp(settings: AppSettings) {
   await browser.url(E2E_URL);
+  await browser.execute(() => {
+    Object.defineProperty(globalThis, "isTauri", {
+      configurable: true,
+      value: true,
+    });
+  });
   await mockCommand("bootstrap_status", bootstrap);
   await mockCommand("get_settings", settings);
   await mockCommand("list_tool_manifests", [manifest]);
