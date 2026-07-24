@@ -14,6 +14,7 @@ export const config = {
       "goog:chromeOptions": {
         args: ["--headless=new", "--no-sandbox", "--disable-dev-shm-usage"],
       },
+      "wdio:enforceWebDriverClassic": true,
       "wdio:chromedriverOptions": {
         cacheDir: join(projectRoot, "target", "wdio-driver-cache"),
       },
@@ -30,7 +31,7 @@ export const config = {
   ],
   framework: "mocha",
   reporters: ["spec"],
-  logLevel: "warn",
+  logLevel: "info",
   outputDir: join(tmpdir(), "openconkit-wdio"),
   waitforTimeout: 10_000,
   connectionRetryTimeout: 120_000,

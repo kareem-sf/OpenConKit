@@ -253,11 +253,38 @@ mod tests {
         );
         logger.record_stderr("credential leaked here".len());
         let contents = fs::read_to_string(&path).expect("read");
+        let records = contents
+            .lines()
+            .map(|line| serde_json::from_str::<Value>(line).expect("valid metadata"))
+            .collect::<Vec<_>>();
+        assert_eq!(records.len(), 3);
+        for record in &records {
+            let object = record.as_object().expect("metadata object");
+            for key in object.keys() {
+                assert!(
+                    matches!(
+                        key.as_str(),
+                        "timestamp"
+                            | "direction"
+                            | "kind"
+                            | "method"
+                            | "request_id"
+                            | "status"
+                            | "bytes"
+                    ),
+                    "unexpected metadata key {key}"
+                );
+            }
+        }
+        assert_eq!(records[0]["request_id"], json!(7));
+        assert_eq!(records[0]["bytes"], json!(123));
+        assert_eq!(records[1]["kind"], json!("response"));
+        assert_eq!(records[1]["bytes"], json!(77));
+        assert_eq!(records[2]["kind"], json!("stderr"));
+        assert_eq!(records[2]["bytes"], json!("credential leaked here".len()));
         assert!(contents.contains("\"method\":\"turn/start\""));
-        assert!(contents.contains("\"request_id\":7"));
         for prohibited in [
             "A101",
-            "42",
             "secret@example.com",
             "risky",
             "credential leaked here",
