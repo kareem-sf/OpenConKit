@@ -88,6 +88,14 @@ jobs:
       - name: Install pinned Rust toolchain
         run: rustup show active-toolchain
 
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 26.4.0
+
+      - name: Stage verified Linux Codex sidecar
+        run: node scripts/fetch-codex.mjs --target x86_64-unknown-linux-gnu
+
       - name: Rust formatting
         run: cargo fmt --all -- --check
 

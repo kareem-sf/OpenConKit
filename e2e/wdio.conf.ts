@@ -25,12 +25,6 @@ export const config = {
       {
         mode: "browser",
         devServerUrl,
-        devServer: {
-          command: "pnpm --filter @openconkit/desktop-ui dev --host 127.0.0.1 --port 1421",
-          cwd: projectRoot,
-          reuseExistingServer: false,
-          timeoutMs: 60_000,
-        },
       },
     ],
   ],

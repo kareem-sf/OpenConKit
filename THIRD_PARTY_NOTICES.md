@@ -25,7 +25,7 @@ Its reproduced NOTICE material includes the applicable Libertinus, New Computer 
 DejaVu, Foxit, and related font terms. The bundled SQLite amalgamation is public-domain
 software; Rust wrapper crates retain the licenses listed below.
 
-## Rust runtime dependencies (724)
+## Rust runtime dependencies (723)
 
 - `adler2@2.0.1` — license: `0BSD OR MIT OR Apache-2.0`; source: https://github.com/oyvindln/adler2; legal materials: M-036, M-128, M-136
 - `ahash@0.7.8` — license: `MIT OR Apache-2.0`; source: https://github.com/tkaitchuck/ahash; legal materials: M-150, M-281
@@ -411,7 +411,6 @@ software; Rust wrapper crates retain the licenses listed below.
 - `ptr_meta_derive@0.1.4` — license: `MIT`; source: https://github.com/djkoloski/ptr_meta; legal materials: M-088
 - `pxfm@0.1.30` — license: `BSD-3-Clause OR Apache-2.0`; source: https://github.com/awxkee/pxfm; legal materials: M-178, M-333
 - `quick-error@2.0.1` — license: `MIT/Apache-2.0`; source: http://github.com/tailhook/quick-error; legal materials: M-168, M-301
-- `quick-xml@0.39.4` — license: `MIT`; source: https://github.com/tafia/quick-xml; legal materials: M-317
 - `quick-xml@0.41.0` — license: `MIT`; source: https://github.com/tafia/quick-xml; legal materials: M-317
 - `quote@1.0.47` — license: `MIT OR Apache-2.0`; source: https://github.com/dtolnay/quote; legal materials: M-036, M-082
 - `r-efi@5.3.0` — license: `MIT OR Apache-2.0 OR LGPL-2.1-or-later`; source: https://github.com/r-efi/r-efi; legal materials: license expression only
@@ -650,7 +649,7 @@ software; Rust wrapper crates retain the licenses listed below.
 - `wayland-backend@0.3.15` — license: `MIT`; source: https://github.com/smithay/wayland-rs; legal materials: M-354
 - `wayland-client@0.31.14` — license: `MIT`; source: https://github.com/smithay/wayland-rs; legal materials: M-354
 - `wayland-protocols@0.32.13` — license: `MIT`; source: https://github.com/smithay/wayland-rs; legal materials: M-354
-- `wayland-scanner@0.31.10` — license: `MIT`; source: https://github.com/smithay/wayland-rs; legal materials: M-354
+- `wayland-scanner@0.31.11` — license: `MIT`; source: https://github.com/smithay/wayland-rs; legal materials: M-354
 - `wayland-sys@0.31.11` — license: `MIT`; source: https://github.com/smithay/wayland-rs; legal materials: M-354
 - `web_atoms@0.2.5` — license: `MIT OR Apache-2.0`; source: https://github.com/servo/html5ever; legal materials: M-150, M-212
 - `web-sys@0.3.103` — license: `MIT OR Apache-2.0`; source: https://github.com/wasm-bindgen/wasm-bindgen/tree/master/crates/web-sys; legal materials: M-150, M-262
@@ -20839,7 +20838,7 @@ DEALINGS IN THE SOFTWARE.
 
 - SHA-256: `12bfa73c9eacbe1e22c772b2cba1f5e3195ae9fafc7773f50493a3e6e306da01`
 - Source filename(s): `LICENSE-MIT.md`
-- Used by: `calamine@0.36.0`, `quick-xml@0.39.4`, `quick-xml@0.41.0`
+- Used by: `calamine@0.36.0`, `quick-xml@0.41.0`
 
 <pre>
 The MIT License (MIT)
@@ -23265,7 +23264,7 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 
 - SHA-256: `b5c6626f68313ca277e6e677d8069d6ba735e23fa2ea34704d02c344ab62a55c`
 - Source filename(s): `LICENSE.txt`
-- Used by: `wayland-backend@0.3.15`, `wayland-client@0.31.14`, `wayland-protocols@0.32.13`, `wayland-scanner@0.31.10`, `wayland-sys@0.31.11`
+- Used by: `wayland-backend@0.3.15`, `wayland-client@0.31.14`, `wayland-protocols@0.32.13`, `wayland-scanner@0.31.11`, `wayland-sys@0.31.11`
 
 <pre>
 Copyright (c) 2015 Elinor Berger
