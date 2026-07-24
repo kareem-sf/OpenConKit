@@ -20,8 +20,32 @@ the same host configuration.
 
 ## Baseline record
 
-The v0.0.1 release baseline must be recorded here after running the command
-on the Windows 11 development host and once on an `ubuntu-22.04` GitHub
-runner. A benchmark result is diagnostic, not a release promise. Correctness,
-resource limits, progress, and cancellation tests remain hard gates even if a
-timing regresses.
+### v0.0.1 Windows baseline
+
+Recorded 2026-07-24 for implementation commit
+`33b4bb3f78600310692879aeec10b4c9a8facfd9`:
+
+| Field               | Value                                                   |
+| ------------------- | ------------------------------------------------------- |
+| Host                | Windows 11 Pro 10.0.26200 (build 26200)                 |
+| CPU                 | Intel Core i7-1165G7, 4 cores / 8 logical processors    |
+| Memory              | 8,362,713,088 bytes                                     |
+| Rust                | `rustc 1.97.0 (2d8144b78 2026-07-07)`                   |
+| Power mode          | Balanced                                                |
+| Background guards   | Defender real-time protection and Windows Search active |
+| Target              | `x86_64-pc-windows-msvc`                                |
+| Time estimate       | 1.6985 s (`[1.6388 s, 1.7691 s]`)                       |
+| Throughput estimate | 2.9438 Kitems/s (`[2.8263, 3.0510]`)                    |
+| Sample observations | 10, including 2 mild high outliers                      |
+
+The exact invocation was:
+
+```sh
+cargo bench -p openconkit-tool-boq-inspector --bench boq_5000_rows \
+  --target x86_64-pc-windows-msvc --locked
+```
+
+The Ubuntu native baseline remains to be captured on the release-equivalent
+GitHub runner. A benchmark result is diagnostic, not a release promise.
+Correctness, resource limits, progress, and cancellation tests remain hard
+gates even if a timing regresses.

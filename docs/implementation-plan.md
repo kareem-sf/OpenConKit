@@ -83,7 +83,8 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
   - [x] Synthetic fixture generator, expected-findings harness, and
         adversarial fixtures
   - [x] Criterion benchmark harness plus cancellation/progress integration
-  - [ ] Record native Windows and Ubuntu benchmark baselines
+  - [x] Record the native Windows benchmark baseline
+  - [ ] Record the native Ubuntu benchmark baseline
 - [x] Phase 5 — Reporting (Excel + PDF, Arabic + English)
   - [x] Deterministic XLSX and Typst PDF providers
   - [x] Independent English and Arabic exports with RTL PDF layout
@@ -127,6 +128,11 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
   - [x] Canonical WebView2 data-root regression test: installed and portable
         builds keep runtime data under `<app-home>/cache/webview` and create
         no executable-adjacent profile
+  - [x] 2026-07-24 release-candidate gate: 252 Rust tests, 26 frontend tests,
+        strict workspace Clippy and TypeScript, lint and formatting, generated
+        contract drift, dependency audit, license and notice generation,
+        secret scan, source-map/development-fixture bundle rejection, optimized
+        Windows build, and NSIS/portable install-launch-uninstall smoke tests
   - [ ] Clean-machine, native E2E, offline-package, and cross-platform smoke
         tests
 - [ ] Phase 10 — GitHub and release readiness (CI green, v0.0.1 draft
@@ -139,9 +145,10 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
 - `citationberg` is temporarily revision-pinned to upstream security commit
   `06a591e2` so Typst resolves `quick-xml` 0.41.0. Remove the pin after a
   fixed crates.io release.
-- Windows Application Control on the current workstation blocks freshly
-  generated unsigned Criterion/release helper executables, so the native
-  benchmark baseline may need to be recorded on CI.
+- Windows Application Control on the current workstation blocks the official
+  checksum-verified `cargo-deny` 0.20.2 executable. The pinned
+  `EmbarkStudios/cargo-deny-action` CI gate is authoritative for advisories,
+  licenses, bans, and sources.
 - The same workstation policy removes freshly downloaded ChromeDriver
   executables. The official Tauri browser-mode E2E suite is committed and
   fails closed locally; its Ubuntu CI execution remains a release gate.
