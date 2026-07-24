@@ -9,7 +9,7 @@ offline, and never sends your documents anywhere.
 
 Built with Tauri 2, React 19 and Rust.
 
-## v0.0.1 target
+## v0.0.1
 
 - **BOQ Inspector** (first tool): ingest XLS/XLSX bills of quantities, run
   automated quality checks, and export findings to Excel and PDF.
@@ -18,24 +18,29 @@ Built with Tauri 2, React 19 and Rust.
 - **Optional AI**: an optional, bundled OpenAI Codex app-server sidecar can
   explain findings in plain language. The app is fully useful without it.
 
-## Current pre-release status
+## Current release status
 
 The local-first desktop workflow, deterministic BOQ engine, reports, durable
 history, optional grounded Codex review, signed updater, and native release
-pipeline are implemented. The complete branch CI matrix passes, including the
-four-flow Tauri browser-mode renderer suite on Ubuntu. v0.0.1 remains a
-pre-release until the native macOS/Linux artifacts are built and the release
-matrix validates every package. The local Windows installer and portable
-package smoke tests pass. Do not represent an untagged build as the finished
-product.
+pipeline are implemented. OpenConKit v0.0.1 was released on 2026-07-24 after
+the complete branch CI matrix and native Windows, macOS, and Linux release
+matrix passed. Validation includes the four-flow Tauri browser-mode renderer
+suite on Ubuntu, universal-binary checks on macOS, and installed plus portable
+Windows package smoke tests.
 
 ## Install
 
-Pre-release: installers are published on the GitHub Releases page
-(<https://github.com/kareem-sf/openconkit/releases>) once v0.0.1 ships.
+Download v0.0.1 from the
+[GitHub Releases page](https://github.com/kareem-sf/OpenConKit/releases/tag/v0.0.1).
 
 - Windows: NSIS installer (per-user, no admin required) or portable zip.
-- macOS / Linux: built on native CI runners at release time.
+- macOS: universal DMG or zipped app.
+- Linux: x64 AppImage or deb package.
+
+The updater packages are cryptographically signed, but v0.0.1 does not use a
+paid Windows publisher certificate or Apple Developer ID. Windows SmartScreen
+or macOS Gatekeeper may therefore show an unknown-publisher warning. Verify
+downloads against the release checksum manifest when needed.
 
 ## Development
 

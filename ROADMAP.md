@@ -4,7 +4,7 @@ OpenConKit is a local-first toolkit that hosts multiple construction-domain
 tools in one desktop shell. Tools ship in the shell; they are never runtime
 downloads.
 
-## v0.0.1 (in progress)
+## v0.0.1 (released 2026-07-24)
 
 - Repository foundation: workspaces, quality gates, versioning, docs, ADRs,
   brand identity.

@@ -104,7 +104,7 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
         E2E coverage
   - [x] Codex account/AI and updater controls from Phases 7 and 8
 - [x] Phase 7 — Codex integration (sidecar staging, stdio client, grounded AI)
-- [ ] Phase 8 — Updates and packaging (channels, updater, native release
+- [x] Phase 8 — Updates and packaging (channels, updater, native release
       artifacts)
   - [x] Baseline CI for frontend, Rust, supply chain, and CodeQL
   - [x] Native Windows/macOS/Linux packaging workflows
@@ -112,7 +112,7 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
         enforced again on the Windows release runner
   - [x] Updater signing, SBOM, provenance, checksums, and generated
         third-party notices
-- [ ] Phase 9 — Verification and hardening (reviews, full checks, smoke tests)
+- [x] Phase 9 — Verification and hardening (reviews, full checks, smoke tests)
   - [x] Phase 3 full-gate snapshot: formatting, lint, strict TypeScript,
         frontend tests/build, 174 Rust tests with all features, Clippy
         `-D warnings`, contract drift, desktop compile, npm/Rust advisories,
@@ -137,12 +137,28 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
         RTL/dark theme persistence, optional AI login, and beta updater flow
   - [x] GitHub branch gates: frontend/contracts, full Rust workspace, supply
         chain, Tauri compile smoke, and JavaScript/Rust CodeQL
-  - [ ] Clean-machine, native-desktop E2E, offline-package, and cross-platform
-        package smoke tests
-- [ ] Phase 10 — GitHub and release readiness (CI green, v0.0.1 draft
-      release)
+  - [x] Native release validation: installed and portable Windows
+        launch/integrity tests; macOS signing, executable, and universal-arch
+        checks; Linux AppImage/deb native builds; and publisher validation of
+        every required non-empty artifact, updater signature, and checksum
+- [x] Phase 10 — GitHub and release readiness (CI green, v0.0.1 released)
 
-## Active risks and release blockers
+## v0.0.1 release evidence (2026-07-24)
+
+- Public stable/latest release:
+  `https://github.com/kareem-sf/OpenConKit/releases/tag/v0.0.1`
+- Release tag commit: `025adee6d24bf71928d6afd4c5e97a3ce4be6b42`
+- Successful native release workflow:
+  `https://github.com/kareem-sf/OpenConKit/actions/runs/30119898719`
+- Fourteen non-empty release assets include the six required distributions,
+  updater signatures and metadata, SPDX SBOM, and `SHA256SUMS.txt`.
+- All 13 checksum-manifest entries match the SHA-256 digests reported by
+  GitHub for their release assets.
+- The `updates` branch publishes signed `latest-stable.json` and
+  `latest-beta.json` feeds for Windows NSIS, Linux AppImage, and both macOS app
+  architectures.
+
+## Residual risks and limitations
 
 - Codex sidecar binaries are large. The fetcher verifies exact upstream
   archive checksums and stages them at build time; binaries remain ignored.
@@ -159,8 +175,8 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
   release-gating flows.
 - The all-feature Rust graph is large. CI caching and job separation should
   improve turnaround without weakening the release-equivalent gate.
-- macOS and Linux artifacts are built only on native GitHub Actions runners;
-  they must never be claimed as locally built on Windows.
+- macOS and Linux artifacts are built and validated only on their native
+  GitHub Actions runners; they are not claimed as locally built on Windows.
 - v0.0.1 has mandatory Tauri updater signatures but no paid Windows publisher
   certificate or Apple Developer ID. SmartScreen/Gatekeeper warnings are
   documented and must not be described as signed/notarized OS trust.
