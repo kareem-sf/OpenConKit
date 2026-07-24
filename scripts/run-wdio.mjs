@@ -16,9 +16,12 @@ const launcher = new Launcher(resolve(configPath), {
 });
 
 let exitCode = 1;
+const keepAlive = setInterval(() => {}, 1_000);
 try {
   exitCode = await launcher.run();
 } catch (error) {
   console.error(error);
+} finally {
+  clearInterval(keepAlive);
 }
 process.exit(exitCode);
