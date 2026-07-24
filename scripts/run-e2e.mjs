@@ -8,9 +8,9 @@ const root = resolve(".");
 const resultDirectory = join(root, "target", "e2e");
 const sentinel = join(resultDirectory, "wdio-result.json");
 const logDirectory = join(resultDirectory, "logs");
-const cli = join(root, "node_modules", "@wdio", "cli", "bin", "wdio.js");
 const desktopUi = join(root, "apps", "desktop-ui");
 const specRoot = join(root, "e2e", "specs");
+const wdioLauncher = join(root, "scripts", "run-wdio.mjs");
 const requireFromDesktopUi = createRequire(join(desktopUi, "package.json"));
 const vitePackage = requireFromDesktopUi.resolve("vite/package.json");
 const viteCli = join(dirname(vitePackage), "bin", "vite.js");
@@ -144,16 +144,19 @@ const vite = spawn(
 let exitCode;
 try {
   await waitForDevServer(vite);
-  const wdioArguments = [cli, "run", "e2e/wdio.conf.ts", "--spec", ...specFiles];
-  if (process.env.CI) {
-    wdioArguments.push("--logLevel", "trace");
-  }
-  const wdio = spawn(process.execPath, wdioArguments, {
-    cwd: root,
-    stdio: "inherit",
-    windowsHide: true,
-  });
+  const wdio = spawn(
+    process.execPath,
+    [wdioLauncher, join(root, "e2e", "wdio.conf.ts"), ...specFiles],
+    {
+      cwd: root,
+      stdio: "inherit",
+      windowsHide: true,
+    },
+  );
   exitCode = await waitForExit(wdio, "WDIO");
+  if (exitCode !== 0) {
+    console.error(`WDIO failed with code ${String(exitCode)}.`);
+  }
 } finally {
   await stopChild(vite);
 }
