@@ -158,7 +158,7 @@ jobs:
             xdg-utils
 
       - name: Fetch and verify pinned Codex runtime
-        run: pnpm codex:fetch -- --target ${{ matrix.target }}
+        run: node scripts/fetch-codex.mjs --target ${{ matrix.target }}
 
       - name: Build and upload signed updater artifacts
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # action-v1.0.0
