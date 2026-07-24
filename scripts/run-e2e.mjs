@@ -24,10 +24,15 @@ function delay(milliseconds) {
   });
 }
 
-function waitForExit(child) {
+function waitForExit(child, name) {
   return new Promise((resolveExit, rejectExit) => {
     child.once("error", rejectExit);
-    child.once("close", (code) => resolveExit(code ?? 1));
+    child.once("close", (code, signal) => {
+      console.error(
+        `${name} exited with code ${code === null ? "null" : code} and signal ${signal ?? "none"}.`,
+      );
+      resolveExit(code ?? 1);
+    });
   });
 }
 
@@ -107,12 +112,16 @@ const vite = spawn(
 let exitCode;
 try {
   await waitForDevServer(vite);
-  const wdio = spawn(process.execPath, [cli, "run", "e2e/wdio.conf.ts"], {
+  const wdioArguments = [cli, "run", "e2e/wdio.conf.ts"];
+  if (process.env.CI) {
+    wdioArguments.push("--logLevel", "trace");
+  }
+  const wdio = spawn(process.execPath, wdioArguments, {
     cwd: root,
     stdio: "inherit",
     windowsHide: true,
   });
-  exitCode = await waitForExit(wdio);
+  exitCode = await waitForExit(wdio, "WDIO");
 } finally {
   await stopChild(vite);
 }
