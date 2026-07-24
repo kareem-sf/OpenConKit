@@ -133,8 +133,12 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
         contract drift, dependency audit, license and notice generation,
         secret scan, source-map/development-fixture bundle rejection, optimized
         Windows build, and NSIS/portable install-launch-uninstall smoke tests
-  - [ ] Clean-machine, native E2E, offline-package, and cross-platform smoke
-        tests
+  - [x] Ubuntu 22.04 Tauri browser-mode renderer E2E: onboarding, Arabic
+        RTL/dark theme persistence, optional AI login, and beta updater flow
+  - [x] GitHub branch gates: frontend/contracts, full Rust workspace, supply
+        chain, Tauri compile smoke, and JavaScript/Rust CodeQL
+  - [ ] Clean-machine, native-desktop E2E, offline-package, and cross-platform
+        package smoke tests
 - [ ] Phase 10 — GitHub and release readiness (CI green, v0.0.1 draft
       release)
 
@@ -150,8 +154,9 @@ Master prompt: `OpenConKit_Codex_Master_Prompt.md` (binding requirements).
   `EmbarkStudios/cargo-deny-action` CI gate is authoritative for advisories,
   licenses, bans, and sources.
 - The same workstation policy removes freshly downloaded ChromeDriver
-  executables. The official Tauri browser-mode E2E suite is committed and
-  fails closed locally; its Ubuntu CI execution remains a release gate.
+  executables. The official Tauri browser-mode E2E suite fails closed locally;
+  Ubuntu CI uses its image-provided compatible ChromeDriver and passes all four
+  release-gating flows.
 - The all-feature Rust graph is large. CI caching and job separation should
   improve turnaround without weakening the release-equivalent gate.
 - macOS and Linux artifacts are built only on native GitHub Actions runners;

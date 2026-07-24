@@ -22,10 +22,12 @@ Built with Tauri 2, React 19 and Rust.
 
 The local-first desktop workflow, deterministic BOQ engine, reports, durable
 history, optional grounded Codex review, signed updater, and native release
-pipeline are implemented. v0.0.1 remains a pre-release until the complete
-CI verification matrix passes and the native macOS/Linux artifacts are built.
-The local Windows installer and portable package smoke tests pass. Do not
-represent an untagged build as the finished product.
+pipeline are implemented. The complete branch CI matrix passes, including the
+four-flow Tauri browser-mode renderer suite on Ubuntu. v0.0.1 remains a
+pre-release until the native macOS/Linux artifacts are built and the release
+matrix validates every package. The local Windows installer and portable
+package smoke tests pass. Do not represent an untagged build as the finished
+product.
 
 ## Install
 
