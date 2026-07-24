@@ -1,4 +1,3 @@
-import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const projectRoot = resolve(".");
@@ -33,7 +32,7 @@ export const config = {
   framework: "mocha",
   reporters: ["spec"],
   logLevel: "info",
-  outputDir: join(tmpdir(), "openconkit-wdio"),
+  outputDir: join(projectRoot, "target", "e2e", "logs"),
   waitforTimeout: 10_000,
   connectionRetryTimeout: 120_000,
   connectionRetryCount: 2,

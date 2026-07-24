@@ -5,7 +5,9 @@ import { createServer } from "node:net";
 import { dirname, join, resolve } from "node:path";
 
 const root = resolve(".");
-const sentinel = join(root, "target", "e2e", "wdio-result.json");
+const resultDirectory = join(root, "target", "e2e");
+const sentinel = join(resultDirectory, "wdio-result.json");
+const logDirectory = join(resultDirectory, "logs");
 const cli = join(root, "node_modules", "@wdio", "cli", "bin", "wdio.js");
 const desktopUi = join(root, "apps", "desktop-ui");
 const specRoot = join(root, "e2e", "specs");
@@ -18,6 +20,7 @@ const devServerUrl = `http://${devServerHost}:${devServerPort}/`;
 const expectedTests = 4;
 
 await rm(sentinel, { force: true });
+await rm(logDirectory, { recursive: true, force: true });
 const specFiles = (await readdir(specRoot, { recursive: true }))
   .filter((entry) => entry.endsWith(".e2e.ts"))
   .map((entry) => resolve(specRoot, entry))
@@ -105,6 +108,27 @@ async function stopChild(child) {
   }
 }
 
+async function printWdioDiagnostics() {
+  let entries;
+  try {
+    entries = await readdir(logDirectory, { recursive: true });
+  } catch {
+    console.error(`No WDIO worker logs were written under ${logDirectory}.`);
+    return;
+  }
+  const logFiles = entries.filter((entry) => entry.endsWith(".log")).sort();
+  if (logFiles.length === 0) {
+    console.error(`No WDIO worker logs were written under ${logDirectory}.`);
+    return;
+  }
+  for (const logFile of logFiles.slice(-5)) {
+    const contents = await readFile(join(logDirectory, logFile), "utf8");
+    const boundedTail = contents.slice(-65_536);
+    console.error(`--- WDIO diagnostic: ${logFile} (last ${boundedTail.length} characters) ---`);
+    console.error(boundedTail);
+  }
+}
+
 await assertDevServerPortAvailable();
 
 const vite = spawn(
@@ -135,6 +159,7 @@ try {
 }
 
 if (exitCode !== 0) {
+  await printWdioDiagnostics();
   process.exitCode = exitCode ?? 1;
 } else {
   let completedTests = 0;
@@ -155,6 +180,7 @@ if (exitCode !== 0) {
     console.error(
       `E2E gate failed: expected ${expectedTests} completed tests, observed ${completedTests}.`,
     );
+    await printWdioDiagnostics();
     process.exitCode = 1;
   }
 }
