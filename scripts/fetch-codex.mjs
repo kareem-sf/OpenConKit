@@ -384,7 +384,16 @@ async function main() {
       if (options.target === universalTarget) {
         const architectureBinaries = [];
         for (const target of universalSourceTargets) {
-          architectureBinaries.push(await fetchPinnedBinary(manifest, target, temporaryRoot));
+          const architectureBinary = await fetchPinnedBinary(manifest, target, temporaryRoot);
+          architectureBinaries.push(architectureBinary);
+          const stagedArchitecture = await stageBinary(
+            architectureBinary,
+            options.stageDirectory,
+            target,
+          );
+          await verifyNativeVersion(stagedArchitecture, target, manifest.version);
+          const stagedArchitectureSize = (await stat(stagedArchitecture)).size;
+          process.stdout.write(`Staged ${stagedArchitecture} (${stagedArchitectureSize} bytes)\n`);
         }
         source = join(temporaryRoot, "codex-app-server-universal");
         await run("lipo", ["-create", ...architectureBinaries, "-output", source]);

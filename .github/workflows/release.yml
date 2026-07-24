@@ -226,9 +226,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: pwsh
         run: |
-          $archive = Get-ChildItem -LiteralPath output -Filter '*-portable.zip' |
-            Select-Object -Single
-          gh release upload '${{ github.ref_name }}' $archive.FullName --clobber
+          $archives = @(Get-ChildItem -LiteralPath output -File -Filter '*_portable.zip')
+          if ($archives.Count -ne 1) {
+            throw "Expected exactly one portable archive; found $($archives.Count)."
+          }
+          gh release upload '${{ github.ref_name }}' $archives[0].FullName --clobber
 
   publish:
     name: Publish release and update feed
