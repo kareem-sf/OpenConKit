@@ -756,7 +756,7 @@ mod tests {
             .execute(
                 "tower-a",
                 "boq-inspector",
-                Path::new("C:\\Users\\qs\\Downloads\\boq.xlsx"),
+                Path::new("boq.xlsx"),
                 &xlsx_policy(),
                 Some("C:\\Users\\qs\\Downloads\\boq.xlsx".into()),
             )
