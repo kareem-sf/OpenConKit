@@ -14,7 +14,7 @@ import {
   defaultSettings,
   manifest,
   signedOutAccount,
-} from "../fixtures.js";
+} from "../fixtures.ts";
 
 const E2E_URL = "http://127.0.0.1:1421/?openconkit-e2e=1";
 let completedTests = 0;
