@@ -10,8 +10,10 @@ repository.workspace = true
 unsafe_code = "forbid"
 
 [dependencies]
+jiff.workspace = true
+openconkit-domain.workspace = true
 serde.workspace = true
-ts-rs.workspace = true
-
-[dev-dependencies]
 serde_json.workspace = true
+semver.workspace = true
+thiserror.workspace = true
+ts-rs.workspace = true

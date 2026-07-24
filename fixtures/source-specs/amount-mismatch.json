@@ -1,0 +1,19 @@
+{
+  "id": "amount-mismatch",
+  "description": "One well-formed BOQ row with a planted quantity × rate mismatch.",
+  "sheets": [
+    {
+      "name": "BOQ",
+      "headers": ["Item", "Description", "Unit", "Quantity", "Rate", "Amount"],
+      "rows": [["A1", "Concrete wall", "m2", 10, 5, 49]]
+    }
+  ],
+  "expected": {
+    "item_rows": 1,
+    "finding_rules": {
+      "boq.amount_mismatch": 1,
+      "boq.pareto_summary": 1
+    },
+    "literal_cells": []
+  }
+}

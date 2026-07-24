@@ -19,4 +19,8 @@ SLA. Well-written reports with reproduction steps get answered first.
 OpenConKit never modifies source workbooks and keeps all data on your
 machine (`~/.openconkit`). If you suspect data loss or corruption caused by
 the app, stop using it on the affected data and file a bug report
-immediately - attach logs from `~/.openconkit/logs` if present.
+immediately. If diagnostic logging was enabled, inspect each JSONL file under
+`~/.openconkit/logs` in a text editor before attaching it. The supported
+Codex log contains only timestamp, direction, method, request id, envelope
+kind/status, and byte count; do not attach a file if it contains anything
+else.

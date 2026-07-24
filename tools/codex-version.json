@@ -1,9 +1,50 @@
 {
   "version": "0.145.0",
   "releaseTag": "rust-v0.145.0",
-  "checksums": {
-    "x86_64-pc-windows-msvc": "TO_FILL_BY_FETCH_SCRIPT",
-    "x86_64-unknown-linux-gnu": "TO_FILL_BY_FETCH_SCRIPT",
-    "aarch64-apple-darwin": "TO_FILL_BY_FETCH_SCRIPT"
+  "resources": {
+    "license": {
+      "sourcePath": "LICENSE",
+      "output": "LICENSE.txt",
+      "size": 10926,
+      "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc"
+    },
+    "notice": {
+      "sourcePath": "NOTICE",
+      "output": "NOTICE.txt",
+      "size": 242,
+      "sha256": "9d71575ecfd9a843fc1677b0efb08053c6ba9fd686a0de1a6f5382fd3c220915"
+    },
+    "appServerSchema": {
+      "sourcePath": "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json",
+      "output": "codex_app_server_protocol.v2.schemas.json",
+      "size": 491906,
+      "sha256": "32b26f2ab3fb7a4a409db958f438f48b0ef106e3a01468f8618fdf65bc823cc4"
+    }
+  },
+  "targets": {
+    "x86_64-pc-windows-msvc": {
+      "asset": "codex-app-server-x86_64-pc-windows-msvc.exe.tar.gz",
+      "archiveEntry": "codex-app-server-x86_64-pc-windows-msvc.exe",
+      "assetSize": 101964334,
+      "sha256": "a60fbb46d79928e3a60d9bef357c1bac59b4f69b27b9e2691d0ed1cc9167c553"
+    },
+    "x86_64-unknown-linux-gnu": {
+      "asset": "codex-app-server-x86_64-unknown-linux-musl.tar.gz",
+      "archiveEntry": "codex-app-server-x86_64-unknown-linux-musl",
+      "assetSize": 97479659,
+      "sha256": "07e9dbfae80c47d5b48a5be4fbf26143fdb5ff647d4afa76805d3a4b81d29877"
+    },
+    "x86_64-apple-darwin": {
+      "asset": "codex-app-server-x86_64-apple-darwin.tar.gz",
+      "archiveEntry": "codex-app-server-x86_64-apple-darwin",
+      "assetSize": 94997299,
+      "sha256": "ec6ebeb526601120ada65845fc64d79ae01179b1bfbb51449a0d9f06934b9606"
+    },
+    "aarch64-apple-darwin": {
+      "asset": "codex-app-server-aarch64-apple-darwin.tar.gz",
+      "archiveEntry": "codex-app-server-aarch64-apple-darwin",
+      "assetSize": 87233482,
+      "sha256": "4a62b65e37fa2b16e0f77b11ff199f10e446ed46278c5178a86787d14c16fa2e"
+    }
   }
 }

@@ -9,7 +9,7 @@ offline, and never sends your documents anywhere.
 
 Built with Tauri 2, React 19 and Rust.
 
-## Features
+## v0.0.1 target
 
 - **BOQ Inspector** (first tool): ingest XLS/XLSX bills of quantities, run
   automated quality checks, and export findings to Excel and PDF.
@@ -17,6 +17,15 @@ Built with Tauri 2, React 19 and Rust.
 - **Local-first**: all data stays in `~/.openconkit` on your machine.
 - **Optional AI**: an optional, bundled OpenAI Codex app-server sidecar can
   explain findings in plain language. The app is fully useful without it.
+
+## Current pre-release status
+
+The local-first desktop workflow, deterministic BOQ engine, reports, durable
+history, optional grounded Codex review, signed updater, and native release
+pipeline are implemented. v0.0.1 remains a pre-release until the complete
+CI verification matrix passes and the native macOS/Linux artifacts are built.
+The local Windows installer and portable package smoke tests pass. Do not
+represent an untagged build as the finished product.
 
 ## Install
 
@@ -48,28 +57,39 @@ pnpm dev              # runs the Tauri app (vite dev server + shell)
 
 ### Commands
 
-| Command                                                 | Description                                           |
-| ------------------------------------------------------- | ----------------------------------------------------- |
-| `pnpm dev`                                              | Run the desktop app in dev mode (Tauri + Vite HMR)    |
-| `pnpm build`                                            | Build all workspace packages (frontend)               |
-| `pnpm test`                                             | Run all TypeScript tests (Vitest)                     |
-| `cargo test --workspace`                                | Run all Rust tests                                    |
-| `pnpm lint`                                             | ESLint over the repo                                  |
-| `pnpm format` / `pnpm format:check`                     | Prettier write / check                                |
-| `pnpm typecheck`                                        | `tsc --noEmit` in every package                       |
-| `cargo clippy --workspace --all-targets -- -D warnings` | Rust lints                                            |
-| `pnpm version:sync` / `pnpm version:check`              | Propagate / verify the `VERSION` file                 |
-| `pnpm icons:generate`                                   | Regenerate Tauri icons from `branding/icon.svg`       |
-| `pnpm tool:new <id>`                                    | Scaffold a new tool (implemented in phase 3)          |
-| `pnpm tauri <args>`                                     | Run the Tauri CLI against `crates/openconkit-desktop` |
+| Command                                                 | Description                                             |
+| ------------------------------------------------------- | ------------------------------------------------------- |
+| `pnpm dev`                                              | Run the desktop app in dev mode (Tauri + Vite HMR)      |
+| `pnpm build`                                            | Build all workspace packages (frontend)                 |
+| `pnpm test`                                             | Run all TypeScript tests (Vitest)                       |
+| `pnpm test:e2e`                                         | Run official Tauri browser-mode renderer E2E flows      |
+| `cargo test --workspace`                                | Run all Rust tests                                      |
+| `pnpm lint`                                             | ESLint over the repo                                    |
+| `pnpm format` / `pnpm format:check`                     | Prettier write / check                                  |
+| `pnpm typecheck`                                        | `tsc --noEmit` in every package                         |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Rust lints                                              |
+| `pnpm version:sync` / `pnpm version:check`              | Propagate / verify the `VERSION` file                   |
+| `pnpm icons:generate`                                   | Regenerate Tauri icons from `branding/icon.svg`         |
+| `pnpm tool:new <id>`                                    | Scaffold a compiled-in tool for contributors            |
+| `pnpm tool:completeness`                                | Fail while any tool has release blockers                |
+| `pnpm contracts:check`                                  | Verify committed Rust-to-TypeScript bindings            |
+| `pnpm bundle:check`                                     | Reject production source maps and development controls  |
+| `pnpm codex:fetch`                                      | Fetch and verify the pinned native Codex sidecar        |
+| `pnpm portable:package`                                 | Assemble the Windows portable ZIP after a release build |
+| `pnpm package:smoke:windows`                            | Install, launch, and remove both Windows package forms  |
+| `pnpm fixtures:generate`                                | Regenerate synthetic BOQ fixture workbooks              |
+| `pnpm notices:generate` / `pnpm notices:check`          | Generate / verify third-party legal notices             |
+| `pnpm licenses:check` / `pnpm security:secrets`         | Supply-chain license and secret checks                  |
+| `pnpm tauri <args>`                                     | Run the Tauri CLI against `crates/openconkit-desktop`   |
 
 ## Privacy
 
-OpenConKit is local-first: **no telemetry, no analytics, no accounts**. Your
-workbooks never leave your machine and are never modified - ingestion is
-read-only and reports are written as new files. The optional AI sidecar runs
-locally and is only invoked when you explicitly use an AI feature. Details:
-`docs/privacy.md`.
+OpenConKit is local-first: **no telemetry, no analytics, and no first-party
+account system**. Your workbooks are never uploaded and are never modified -
+ingestion is read-only and reports are written as new files. When you
+explicitly approve an optional AI review, the local Codex sidecar may send
+only the displayed normalized facts to the selected AI provider using your
+Codex/ChatGPT sign-in. Details: `docs/privacy.md`.
 
 ## AI behavior
 

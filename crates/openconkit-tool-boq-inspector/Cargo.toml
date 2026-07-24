@@ -10,4 +10,23 @@ repository.workspace = true
 unsafe_code = "forbid"
 
 [dependencies]
+jiff.workspace = true
+openconkit-domain.workspace = true
+openconkit-reporting = { workspace = true, features = ["pdf"] }
+openconkit-spreadsheet = { version = "0.0.1", path = "../openconkit-spreadsheet" }
 openconkit-tool-sdk.workspace = true
+rust_decimal.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+ts-rs.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+rust_xlsxwriter.workspace = true
+
+[[bench]]
+name = "boq_5000_rows"
+harness = false

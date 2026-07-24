@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
 
 /** User theme preference; `system` follows the OS setting. */
 export type ThemePreference = "system" | "light" | "dark";
@@ -7,48 +6,20 @@ export type ThemePreference = "system" | "light" | "dark";
 /** Concrete scheme applied to the document. */
 export type ResolvedTheme = "light" | "dark";
 
-/** In-memory storage used where localStorage is unavailable (tests). */
-const memoryStorage = new Map<string, string>();
-const memoryStateStorage: StateStorage = {
-  getItem: (name) => memoryStorage.get(name) ?? null,
-  setItem: (name, value) => {
-    memoryStorage.set(name, value);
-  },
-  removeItem: (name) => {
-    memoryStorage.delete(name);
-  },
-};
-
-/** Prefer real localStorage; fall back to memory when unavailable. */
-function resolveStorage(): StateStorage {
-  try {
-    if (typeof window !== "undefined" && window.localStorage) {
-      return window.localStorage;
-    }
-  } catch {
-    // Access can throw in sandboxed contexts; fall through to memory.
-  }
-  return memoryStateStorage;
-}
-
 interface ThemeState {
   preference: ThemePreference;
   setPreference: (preference: ThemePreference) => void;
 }
 
 /**
- * Theme store. The preference is persisted to localStorage until the
- * settings backend (openconkit-storage) lands.
+ * In-memory view of the canonical backend setting. Persistence lives only
+ * under the app home through `openconkit-storage`; the WebView never creates
+ * a second settings source in localStorage.
  */
-export const useThemeStore = create<ThemeState>()(
-  persist(
-    (set) => ({
-      preference: "system",
-      setPreference: (preference) => set({ preference }),
-    }),
-    { name: "openconkit.theme", storage: createJSONStorage(resolveStorage) },
-  ),
-);
+export const useThemeStore = create<ThemeState>((set) => ({
+  preference: "system",
+  setPreference: (preference) => set({ preference }),
+}));
 
 /** Resolve a preference against the OS scheme. */
 export function resolveTheme(preference: ThemePreference, systemDark: boolean): ResolvedTheme {

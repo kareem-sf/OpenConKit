@@ -15,7 +15,7 @@ describe("theme store", () => {
     expect(useThemeStore.getState().preference).toBe("system");
   });
 
-  it("persists an explicit preference", () => {
+  it("tracks the canonical backend preference in memory", () => {
     useThemeStore.getState().setPreference("dark");
     expect(useThemeStore.getState().preference).toBe("dark");
   });

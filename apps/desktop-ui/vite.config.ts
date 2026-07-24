@@ -21,7 +21,9 @@ export default defineConfig({
   },
   build: {
     target: "es2022",
-    sourcemap: true,
+    // Source maps retain tree-shaken development fixtures and E2E controls.
+    // They are useful in dev, but must never be shipped inside the desktop app.
+    sourcemap: false,
     chunkSizeWarningLimit: 1200,
   },
   test: {

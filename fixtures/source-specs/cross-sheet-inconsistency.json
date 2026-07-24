@@ -1,0 +1,24 @@
+{
+  "id": "cross-sheet-inconsistency",
+  "description": "The same description appears on two trade sheets with conflicting unit and prices.",
+  "sheets": [
+    {
+      "name": "Trade A",
+      "headers": ["Item", "Description", "Unit", "Quantity", "Rate", "Amount"],
+      "rows": [["A1", "Concrete wall", "m2", 10, 5, 50]]
+    },
+    {
+      "name": "Trade B",
+      "headers": ["Item", "Description", "Unit", "Quantity", "Rate", "Amount"],
+      "rows": [["A1", "Concrete wall", "m3", 10, 6, 60]]
+    }
+  ],
+  "expected": {
+    "item_rows": 2,
+    "finding_rules": {
+      "boq.cross_sheet_inconsistency": 1,
+      "boq.pareto_summary": 2
+    },
+    "literal_cells": []
+  }
+}

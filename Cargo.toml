@@ -14,38 +14,57 @@ rust-version = "1.85"
 
 [workspace.dependencies]
 # Internal crates
-openconkit-domain = { path = "crates/openconkit-domain" }
-openconkit-application = { path = "crates/openconkit-application" }
-openconkit-tool-sdk = { path = "crates/openconkit-tool-sdk" }
+openconkit-domain = { version = "0.0.1", path = "crates/openconkit-domain" }
+openconkit-application = { version = "0.0.1", path = "crates/openconkit-application" }
+openconkit-storage = { version = "0.0.1", path = "crates/openconkit-storage" }
+openconkit-reporting = { version = "0.0.1", path = "crates/openconkit-reporting" }
+openconkit-tool-sdk = { version = "0.0.1", path = "crates/openconkit-tool-sdk" }
+openconkit-tool-boq-inspector = { version = "0.0.1", path = "crates/openconkit-tool-boq-inspector" }
+openconkit-ai-codex = { version = "0.0.1", path = "crates/openconkit-ai-codex" }
 
 # Desktop host
 tauri = { version = "2.11.5" }
 tauri-build = { version = "2.6.0" }
+tauri-plugin-single-instance = { version = "2.4.3" }
+tauri-plugin-dialog = { version = "2.7.2" }
+tauri-plugin-opener = { version = "2.5.4" }
+tauri-plugin-updater = { version = "2.10.1" }
 
 # Spreadsheet ingestion
 calamine = { version = "0.36.0" }
+zip = { version = "8.6.0", default-features = false, features = ["deflate"] }
 
 # Storage
-rusqlite = { version = "0.40.1", features = ["bundled"] }
+rusqlite = { version = "0.40.1", features = ["backup", "bundled"] }
 
 # Reporting
 rust_xlsxwriter = { version = "0.96.0" }
 # PDF via Typst is an optional feature of openconkit-reporting (wired in the
 # reporting phase); pinned here so every build resolves identical versions.
 typst = { version = "0.15.1" }
+typst-assets = { version = "0.15.1", features = ["fonts"] }
 typst-pdf = { version = "0.15.1" }
 
 # Contracts
-ts-rs = { version = "12.0.1" }
+ts-rs = { version = "12.0.1", features = ["jiff-impl", "uuid-impl"] }
 
 # Shared utilities
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
+semver = { version = "1" }
+schemars = { version = "1.2.1" }
 thiserror = { version = "2" }
 anyhow = { version = "1" }
 sha2 = { version = "0.10" }
+tokio = { version = "1.53.1", features = ["io-util", "macros", "process", "rt", "sync", "time"] }
+url = { version = "2.5.7" }
 # Timestamps: jiff (see docs/adr/0007-timestamp-library.md)
 jiff = { version = "0.2", features = ["serde"] }
+# Canonical decimal semantics for money/quantities (see docs/adr/0008-decimal-money-semantics.md)
+rust_decimal = { version = "1", features = ["serde-with-str"] }
+# Entity identifiers
+uuid = { version = "1", features = ["v4", "v5", "serde"] }
+criterion = { version = "0.8.2" }
 
 [profile.release]
 opt-level = 3
@@ -54,3 +73,10 @@ codegen-units = 1
 panic = "unwind"
 strip = "symbols"
 debug = false
+
+# citationberg 0.7.0 on crates.io constrains quick-xml to the vulnerable 0.38
+# series. Upstream commit 06a591e upgrades it to 0.41.0, which fixes
+# RUSTSEC-2026-0194 and RUSTSEC-2026-0195. Remove this pin after a fixed
+# citationberg release is available through crates.io.
+[patch.crates-io]
+citationberg = { git = "https://github.com/typst/citationberg", rev = "06a591e2f237d25e1dfdedac3f3d1494c496c52d" }

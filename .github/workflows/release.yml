@@ -1,0 +1,375 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate release source
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Lint GitHub Actions workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive=actionlint_1.7.12_linux_amd64.tar.gz
+          curl --fail --location --silent --show-error \
+            --output "${RUNNER_TEMP}/${archive}" \
+            "https://github.com/rhysd/actionlint/releases/download/v1.7.12/${archive}"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  ${RUNNER_TEMP}/${archive}" |
+            sha256sum --check
+          tar --extract --gzip --file "${RUNNER_TEMP}/${archive}" \
+            --directory "${RUNNER_TEMP}" actionlint
+          "${RUNNER_TEMP}/actionlint"
+
+      - name: Verify tag matches canonical version
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "v$(tr -d '\r\n' < VERSION)"
+          node scripts/version-check.mjs
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 26.4.0
+
+      - name: Enable pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.16.0 --activate
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Tauri build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            libssl-dev \
+            patchelf \
+            xdg-utils
+
+      - name: Frontend and repository gates
+        run: |
+          pnpm format:check
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+          pnpm build
+          pnpm bundle:check
+          pnpm test:e2e
+          pnpm contracts:check
+          pnpm tool:completeness
+          pnpm security:secrets
+          pnpm licenses:check
+          pnpm notices:check
+
+      - name: Rust release gates
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+          cargo test --workspace --all-features --locked
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs: validate
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      # tauri-action merges updater platforms by replacing latest.json.
+      # Serial jobs prevent concurrent read/delete/upload races from dropping
+      # a platform while still keeping each native build on its own runner.
+      max-parallel: 1
+      matrix:
+        include:
+          - name: Windows x64
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            rust_targets: x86_64-pc-windows-msvc
+            config: tauri.windows.conf.json
+            asset_pattern: "[name]_[version]_windows_[arch][_setup].[ext]"
+          - name: Linux x64
+            runner: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            rust_targets: x86_64-unknown-linux-gnu
+            config: tauri.linux.conf.json
+            asset_pattern: "[name]_[version]_linux_[arch][_setup].[ext]"
+          - name: macOS universal
+            runner: macos-latest
+            target: universal-apple-darwin
+            rust_targets: x86_64-apple-darwin aarch64-apple-darwin
+            config: tauri.macos.conf.json
+            asset_pattern: "[name]_[version]_macos_[arch][_setup].[ext]"
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 26.4.0
+
+      - name: Enable pinned pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.16.0 --activate
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Rust targets
+        run: rustup target add ${{ matrix.rust_targets }}
+
+      - name: Install Linux bundle dependencies
+        if: matrix.runner == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            libssl-dev \
+            patchelf \
+            xdg-utils
+
+      - name: Fetch and verify pinned Codex runtime
+        run: pnpm codex:fetch -- --target ${{ matrix.target }}
+
+      - name: Build and upload signed updater artifacts
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # action-v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: .
+          tauriScript: pnpm tauri
+          tagName: ${{ github.ref_name }}
+          releaseName: OpenConKit ${{ github.ref_name }}
+          releaseDraft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generateReleaseNotes: true
+          updaterJsonPreferNsis: true
+          uploadUpdaterJson: true
+          uploadUpdaterSignatures: true
+          releaseAssetNamePattern: ${{ matrix.asset_pattern }}
+          retryAttempts: 2
+          args: --target ${{ matrix.target }} --config ${{ matrix.config }}
+
+      - name: Verify and upload universal macOS app ZIP
+        if: matrix.runner == 'macos-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          app=target/universal-apple-darwin/release/bundle/macos/OpenConKit.app
+          test -d "${app}"
+          codesign --verify --deep --strict --verbose=2 "${app}"
+
+          binary_count=0
+          while IFS= read -r -d '' binary; do
+            architectures="$(lipo -archs "${binary}")"
+            [[ "${architectures}" == *x86_64* ]]
+            [[ "${architectures}" == *arm64* ]]
+            codesign --verify --strict --verbose=2 "${binary}"
+            binary_count=$((binary_count + 1))
+          done < <(find "${app}/Contents/MacOS" -type f -perm -111 -print0)
+          test "${binary_count}" -ge 2
+
+          version="$(tr -d '\r\n' < VERSION)"
+          archive="OpenConKit_${version}_macos_universal.zip"
+          ditto -c -k --sequesterRsrc --keepParent "${app}" "${archive}"
+          test -s "${archive}"
+          gh release upload "${GITHUB_REF_NAME}" "${archive}" --clobber
+
+      - name: Build portable Windows package
+        if: matrix.runner == 'windows-latest'
+        run: pnpm portable:package -- --target-dir target --output-dir output
+
+      - name: Smoke-test Windows installer and portable package
+        if: matrix.runner == 'windows-latest'
+        run: pnpm package:smoke:windows
+
+      - name: Upload portable Windows package
+        if: matrix.runner == 'windows-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $archive = Get-ChildItem -LiteralPath output -Filter '*-portable.zip' |
+            Select-Object -Single
+          gh release upload '${{ github.ref_name }}' $archive.FullName --clobber
+
+  publish:
+    name: Publish release and update feed
+    needs: build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 26.4.0
+
+      - name: Download release artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+          gh release download "${GITHUB_REF_NAME}" --dir release-assets
+
+      - name: Require the complete native distribution set
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(tr -d '\r\n' < VERSION)"
+          for artifact in \
+            "OpenConKit_${version}_windows_x64_setup.exe" \
+            "OpenConKit_${version}_windows_x64_portable.zip" \
+            "OpenConKit_${version}_linux_x64.AppImage" \
+            "OpenConKit_${version}_linux_x64.deb" \
+            "OpenConKit_${version}_macos_universal.dmg" \
+            "OpenConKit_${version}_macos_universal.zip"
+          do
+            test -s "release-assets/${artifact}"
+          done
+
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          path: .
+          format: spdx-json
+          output-file: release-assets/OpenConKit-${{ github.ref_name }}.spdx.json
+          upload-artifact: false
+
+      - name: Generate and upload release checksums
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          (
+            cd release-assets
+            find . -maxdepth 1 -type f ! -name SHA256SUMS.txt -print0 |
+              sort -z |
+              xargs -0 sha256sum
+          ) > release-assets/SHA256SUMS.txt
+          gh release upload "${GITHUB_REF_NAME}" \
+            "release-assets/OpenConKit-${GITHUB_REF_NAME}.spdx.json" \
+            release-assets/SHA256SUMS.txt \
+            --clobber
+
+      - name: Attest release artifact provenance
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-checksums: release-assets/SHA256SUMS.txt
+
+      - name: Validate merged updater metadata
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p feed
+          gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" > feed/release.json
+          if [[ "${GITHUB_REF_NAME}" == *-* ]]; then
+            channel=beta
+          else
+            channel=stable
+          fi
+          node scripts/prepare-update-feed.mjs \
+            --latest release-assets/latest.json \
+            --release feed/release.json \
+            --output "feed/latest-${channel}.json"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_NAME}" == *-* ]]; then
+            gh release edit "${GITHUB_REF_NAME}" --draft=false --prerelease --latest=false
+          else
+            gh release edit "${GITHUB_REF_NAME}" --draft=false --prerelease=false --latest
+          fi
+
+      - name: Publish channel feed files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/updates" >/dev/null 2>&1; then
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+              -f ref='refs/heads/updates' \
+              -f sha="${GITHUB_SHA}" >/dev/null
+          fi
+
+          publish_feed() {
+            local source_file="$1"
+            local target_name="$2"
+            local encoded
+            local existing_sha
+            encoded="$(base64 -w 0 "${source_file}")"
+            existing_sha="$(
+              gh api "repos/${GITHUB_REPOSITORY}/contents/${target_name}?ref=updates" \
+                --jq .sha 2>/dev/null || true
+            )"
+            if [[ -n "${existing_sha}" ]]; then
+              gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/${target_name}" \
+                -f message="chore(updater): publish ${GITHUB_REF_NAME} ${target_name}" \
+                -f content="${encoded}" \
+                -f branch=updates \
+                -f sha="${existing_sha}" >/dev/null
+            else
+              gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/${target_name}" \
+                -f message="chore(updater): publish ${GITHUB_REF_NAME} ${target_name}" \
+                -f content="${encoded}" \
+                -f branch=updates >/dev/null
+            fi
+          }
+
+          if [[ "${GITHUB_REF_NAME}" == *-* ]]; then
+            publish_feed feed/latest-beta.json latest-beta.json
+          else
+            publish_feed feed/latest-stable.json latest-stable.json
+            publish_feed feed/latest-stable.json latest-beta.json
+          fi

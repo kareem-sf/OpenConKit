@@ -10,14 +10,17 @@ downloads.
   brand identity.
 - BOQ Inspector: automated Bill of Quantities quality review (XLS/XLSX
   ingestion, defect detection, Excel + PDF reports, EN/AR UI).
-- Windows packaging (NSIS per-user installer + zip).
+- Optional AI-assisted explanations via the bundled Codex app-server
+  sidecar, grounded only in extracted facts and explicitly invoked.
+- Signed updater artifacts and native Windows, macOS, and Linux release
+  packages as specified in the master build prompt.
 
 ## Near term (post-0.0.1)
 
-- Optional AI-assisted explanations via the bundled Codex app-server sidecar
-  (grounded in extracted workbook facts; fully offline-capable without it).
-- Signed releases and the Tauri updater (see `docs/releasing.md`).
-- macOS and Linux builds on native CI runners.
+- Additional deterministic BOQ rules and report customization driven by
+  fixture evidence and user feedback.
+- Additional release channels after the stable update path is proven.
+- Performance tuning for very large, but still safety-bounded, workbooks.
 
 ## Future tool ideas (uncommitted)
 

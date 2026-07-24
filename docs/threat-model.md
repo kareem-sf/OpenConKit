@@ -21,11 +21,15 @@ CPU/memory use when opened.
   in `openconkit-spreadsheet`.
 - Files are opened read-only; parsing happens in the app process with no
   elevated privileges.
-- Detection-engine phase adds size guards: reject files above a configured
-  size, cap sheet/cell counts, and time-box ingestion with progress
-  cancellation.
-- Fixture corpus includes adversarial files (deeply nested shared strings,
-  huge dimensions) generated from `fixtures/source-specs/`.
+- Source import rejects non-regular files, non-XLS/XLSX extensions, and files
+  over the tool-declared 64 MiB limit before copying; the streaming copy
+  rechecks the limit so a concurrently growing file cannot bypass it.
+- The spreadsheet adapter enforces sheet, row, column, retained-cell,
+  merged-region, formula, cell-text, total-text, archive-entry, and parser
+  work limits before or while retaining workbook content.
+- Parsing checks cooperative cancellation at bounded intervals. The BOQ
+  engine, schemas, providers, route, tests, translations, and documentation
+  are enforced by `pnpm tool:completeness`.
 
 ## T2. Zip bombs (XLSX is a zip)
 
@@ -33,9 +37,11 @@ CPU/memory use when opened.
 
 **Mitigations.**
 
-- Never extract XLSX archives to disk; calamine streams entries.
-- Decompression ratio and total-size caps enforced at ingestion (detection
-  phase); rejection is reported, not fatal.
+- Never extract XLSX archives to disk.
+- The outer source file is bounded at import. Before XLSX parsing, the
+  spreadsheet adapter inspects ZIP metadata and enforces entry-count,
+  per-entry uncompressed-size, total-uncompressed-size, and compression-ratio
+  caps with checked arithmetic.
 - Temporary artifacts are confined to the app home temp dir and cleaned up.
 
 ## T3. Formula injection in exports
@@ -45,12 +51,10 @@ written into exported XLSX executes when the user opens the report in Excel.
 
 **Mitigations.**
 
-- `openconkit-reporting` writes user-derived values with
-  `write_string`/typed writers only - never `write_formula` for document
-  data.
-- A sanitizer prefixes a leading quote to any string beginning with a
-  formula trigger character (implemented with the first real exporter and
-  covered by unit tests).
+- The BOQ XLSX exporter writes document data with string APIs, never as
+  workbook formulas, and neutralizes formula-trigger prefixes before writing.
+- Tests reopen the generated workbook and prove formula-like finding text is
+  stored as inert text.
 - CSV export (if added) applies the same rule.
 
 ## T4. Path traversal
@@ -63,12 +67,22 @@ cause reads/writes outside intended directories.
 - All app-managed paths are built from the canonical app home
   (`openconkit_home()`); user-supplied segments are validated and joined
   with `Path::join`, never string concatenation.
+- The static main window is disabled. After app-home bootstrap, the desktop
+  host creates it with an absolute `<app-home>/cache/webview` data directory
+  and a non-persistent browser session. This prevents WebView2's default
+  executable-adjacent profile and keeps webview cache/state inside the
+  canonical root.
 - `OPENCONKIT_HOME` override is honored for dev/test only and documented as
   such.
 - No archive extraction to disk (see T2), so archive-entry traversal does
   not apply; any future extraction must normalize and confine entries.
-- Tauri FS/dialog capabilities are not enabled by default
-  (`capabilities/default.json` grants `core:default` only).
+- The WebView has no filesystem plugin permission. It has only
+  `dialog:allow-open` for an explicit workbook picker; the selected path is
+  passed to Rust's bounded immutable-import command.
+- Report reveal accepts persisted run/export ids, not an arbitrary path.
+  Rust resolves the record below the project's managed exports directory,
+  rejects links and escapes, verifies the recorded SHA-256, and only then
+  starts the platform file manager with an argument list (never a shell).
 
 ## T5. Codex sidecar command execution
 
@@ -81,8 +95,12 @@ prompt-injected or malicious instruction could act on the user's machine.
   argument list (no shell interpolation; see `CodexClientConfig`).
 - Approval-first design: AI proposes, the user applies. No silent writes to
   documents or settings.
-- Sidecar binary is checksum-verified against `tools/codex-version.json`
-  before staging.
+- The Codex version, release tag, archive sizes, SHA-256 digests, license,
+  notice, and v2 protocol schema are pinned in `tools/codex-version.json`.
+  `scripts/fetch-codex.mjs` downloads only official OpenAI release/source
+  origins, rejects unsafe archive layouts, verifies exact sizes and hashes,
+  stages atomically, and executes a native staged binary to verify its exact
+  version.
 - Working directory for the sidecar is confined to the app home; sandboxing
   flags of the app server are enabled by default.
 - The app is fully functional with the sidecar absent or disabled.
@@ -96,8 +114,9 @@ config files, or IPC responses.
 
 - OpenConKit never stores provider credentials; they live in the provider's
   own CLI config or environment.
-- Logging policy (AGENTS.md): no cell contents, no env vars, no paths
-  containing usernames beyond the app home root.
+- Logging policy (AGENTS.md): no cell contents, prompts, responses, stderr
+  text, environment values, credentials, or user paths. Optional Codex
+  diagnostics record only bounded routing metadata.
 - The webview IPC surface exposes no command that returns environment
   variables or file contents outside the app home.
 
@@ -108,14 +127,26 @@ update.
 
 **Mitigations.**
 
-- Tauri updater with minisign public-key signature verification embedded in
-  the app; private key held in CI secrets with restricted access.
-- Updates delivered over HTTPS from the project's own release endpoints
-  only; update manifests are part of release artifacts.
-- Releases are reproducible from tagged commits; checksums published on the
-  Releases page.
-- Rollback path documented in `docs/releasing.md`; database schema is never
-  auto-downgraded.
+- Tauri updater verification is mandatory and uses the embedded public key.
+  The private key is stored only in restricted local recovery storage and
+  GitHub Actions encrypted secrets.
+- Rust selects one of two compiled-in HTTPS feed URLs on the project-owned
+  `updates` branch. A user-writable feed URL is not supported; the WebView has
+  no updater plugin permission and cannot choose a network destination.
+- Stable feeds reject SemVer prereleases. Installation rechecks the selected
+  channel and exact version immediately before downloading.
+- Tauri verifies the downloaded package signature before Rust launches the
+  installer. Feed metadata is length/type bounded at IPC, and manual browser
+  URLs are derived from a validated version on the project GitHub domain,
+  never accepted from the feed.
+- The release workflow keeps releases in draft until all native builds and a
+  merged cross-platform `latest.json` pass validation. It publishes beta
+  releases only to the beta feed; a stable release advances both feeds.
+- Portable packages contain a marker beside the executable. They may check
+  and notify, but Rust refuses in-place replacement and opens only the
+  allowlisted release page.
+- Database schema is never auto-downgraded; rollback means reinstalling an
+  older binary only when its supported schema is compatible.
 
 ## T8. Deep links
 
@@ -139,10 +170,13 @@ commands, or a command accepts malicious payloads.
 
 - Strict CSP in `tauri.conf.json` (`default-src 'self'`, no remote scripts,
   no `object-src`, `frame-ancestors 'none'`).
-- Capabilities are minimal (`core:default` only); every additional
-  permission is reviewed against this file.
+- Capabilities are minimal (`core:default` and `dialog:allow-open`); every
+  additional permission is reviewed against this file. No frontend
+  filesystem or shell permission is granted.
 - Commands take typed parameters deserialized via serde; zod schemas in
   `@openconkit/contracts` validate on the frontend boundary.
+- IPC failures serialize only stable localizable error codes; backend
+  diagnostics and absolute paths do not cross into the WebView.
 - No `eval`, no remote module loading, no `dangerousDisableAssetCspModification`.
 
 ## T10. Log leakage
@@ -152,15 +186,22 @@ are later shared by the user or read by other processes.
 
 **Mitigations.**
 
-- Logs are local-only under `~/.openconkit/logs`, size-rotated.
-- Content policy: log event metadata (rule ids, counts, durations), never
-  cell text or credentials.
+- The canonical local log directory is `~/.openconkit/logs`. Diagnostic
+  logging is off by default and takes effect after restart.
+- The Codex protocol logger stores only timestamp, direction, bounded
+  allowlisted method name, numeric request id, envelope kind/status, and byte
+  count. It never writes raw JSON, params, results, stderr text, workbook
+  values, prompts, model responses, paths, or credentials.
+- Logs rotate at 2 MiB with three retained files. Log and rotation targets
+  reject symlinks and non-regular files; Unix files are mode `0600`.
+- Synthetic JSONL contract fixtures contain no captured user/provider data.
 - Support flows instruct users what logs contain before sharing
   (`SUPPORT.md`).
 
 ## T11. Migration / database corruption
 
-**Threat.** A failed migration or crash leaves `openconkit.db` corrupt;
+**Threat.** A failed migration or crash leaves
+`data/openconkit.sqlite3` corrupt;
 malicious DB content triggers downgrade or injection.
 
 **Mitigations.**
@@ -170,8 +211,14 @@ malicious DB content triggers downgrade or injection.
   newer than the build (`SchemaTooNew`).
 - All queries use bound parameters (rusqlite), never string-built SQL with
   user input.
-- Before applying migrations to an existing database, a backup copy is
-  written next to the database (storage phase).
+- Before applying pending migrations to an existing database, SQLite's
+  online backup API writes a unique backup under `~/.openconkit/backups/`
+  and verifies it with `quick_check`; existing backups are never overwritten.
+- Bootstrap uses a first-launch interrupt marker, and settings/config writes
+  are atomic with corrupt-file backup and field-level recovery.
+- Completion of the first-run privacy welcome is stored atomically in
+  canonical settings. Merely creating the app-home directory does not skip
+  the acknowledgement after an interrupted first launch.
 
 ## T12. Supply chain
 
@@ -186,7 +233,11 @@ to contributors or users.
   are reviewed, not auto-merged.
 - Version pins for critical components (Tauri, Codex release) with checksum
   verification for fetched binaries.
-- `cargo audit` / `pnpm audit` run in CI (workflow phase).
+- `cargo-deny` (advisories, licenses, bans, sources), `pnpm audit`, a
+  production-dependency license review, and a high-confidence secret scan
+  run in CI.
+- GitHub Actions are pinned to commit SHAs with least-privilege workflow
+  permissions; CodeQL scans Rust and JavaScript/TypeScript.
 - Sidecar and icon binaries are generated or fetched at build time, never
   committed (`.gitignore`: `**/binaries/`).
 

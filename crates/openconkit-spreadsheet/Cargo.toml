@@ -11,7 +11,11 @@ unsafe_code = "forbid"
 
 [dependencies]
 calamine.workspace = true
+serde.workspace = true
 thiserror.workspace = true
+zip.workspace = true
 
 [dev-dependencies]
+serde_json.workspace = true
+sha2.workspace = true
 rust_xlsxwriter.workspace = true

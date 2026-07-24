@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "OpenConKit",
   "version": "0.0.1",
-  "identifier": "com.openconkit.app",
+  "identifier": "com.openconkit.desktop",
   "build": {
     "beforeDevCommand": "pnpm --filter @openconkit/desktop-ui dev",
     "beforeBuildCommand": "pnpm --filter @openconkit/desktop-ui build",
@@ -13,12 +13,14 @@
     "windows": [
       {
         "label": "main",
+        "create": false,
         "title": "OpenConKit",
         "width": 1280,
         "height": 800,
         "minWidth": 1024,
         "minHeight": 640,
-        "resizable": true
+        "resizable": true,
+        "incognito": true
       }
     ],
     "security": {
@@ -27,11 +29,40 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"],
+    "createUpdaterArtifacts": true,
+    "externalBin": ["binaries/codex-app-server"],
+    "resources": {
+      "resources/codex/": "codex/",
+      "../../LICENSE": "licenses/OpenConKit-LICENSE.txt",
+      "../../NOTICE": "licenses/OpenConKit-NOTICE.txt",
+      "../../THIRD_PARTY_NOTICES.md": "licenses/THIRD_PARTY_NOTICES.md"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico",
+      "icons/icon.icns",
+      "icons/icon.png"
+    ],
     "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
       "nsis": {
         "installMode": "currentUser"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJFQ0FBQTU5OTYyQTM5NTAKUldSUU9TcVdXYXJLdnRkR3ZRanhyMWtVamtaMnVTWmZ2ZS82dlh3aDV4NzVVTkFkc1BRNFNYR3oK",
+      "endpoints": [
+        "https://raw.githubusercontent.com/kareem-sf/OpenConKit/updates/latest-stable.json"
+      ],
+      "windows": {
+        "installMode": "passive"
       }
     }
   }

@@ -11,6 +11,8 @@ node_modules/
 dist/
 dist-ssr/
 *.local
+/output/
+/tmp/
 
 # Tauri
 crates/openconkit-desktop/gen/

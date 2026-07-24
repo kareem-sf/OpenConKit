@@ -11,6 +11,25 @@ default-run = "openconkit-desktop"
 tauri-build.workspace = true
 
 [dependencies]
+jiff.workspace = true
+openconkit-application.workspace = true
+openconkit-ai-codex.workspace = true
+openconkit-domain.workspace = true
+openconkit-storage.workspace = true
+openconkit-tool-boq-inspector = { version = "0.0.1", path = "../openconkit-tool-boq-inspector" }
+openconkit-tool-sdk.workspace = true
 serde.workspace = true
+serde_json.workspace = true
+semver.workspace = true
+sha2.workspace = true
 tauri.workspace = true
+tauri-plugin-dialog.workspace = true
+tauri-plugin-opener.workspace = true
+tauri-plugin-single-instance.workspace = true
+tauri-plugin-updater.workspace = true
 thiserror.workspace = true
+tokio.workspace = true
+url.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+rfd = { version = "0.16.0" }

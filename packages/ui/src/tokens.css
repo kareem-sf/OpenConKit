@@ -27,10 +27,14 @@
   --surface-base: #ffffff;
   --surface-muted: #f5f5f4;
   --surface-raised: #ffffff;
+  --surface-sidebar: #fafaf9;
+  --surface-selected: #fff7ed;
   --border-default: #d6d3d1;
+  --border-strong: #a8a29e;
 
   --content-primary: #1c1917;
   --content-secondary: #44403c;
+  --content-muted: #78716c;
   --content-inverse: #ffffff;
 
   --accent: #b45309; /* brand-700: AA on white for large text and UI */
@@ -55,10 +59,14 @@
   --surface-base: #1c1917;
   --surface-muted: #292524;
   --surface-raised: #44403c;
+  --surface-sidebar: #292524;
+  --surface-selected: #451a03;
   --border-default: #57534e;
+  --border-strong: #78716c;
 
   --content-primary: #fafaf9;
   --content-secondary: #d6d3d1;
+  --content-muted: #a8a29e;
   --content-inverse: #1c1917;
 
   --accent: #fbbf24; /* brand-400: AA on dark surfaces */
@@ -83,10 +91,14 @@
   --color-surface-base: var(--surface-base);
   --color-surface-muted: var(--surface-muted);
   --color-surface-raised: var(--surface-raised);
+  --color-surface-sidebar: var(--surface-sidebar);
+  --color-surface-selected: var(--surface-selected);
   --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
 
   --color-content-primary: var(--content-primary);
   --color-content-secondary: var(--content-secondary);
+  --color-content-muted: var(--content-muted);
   --color-content-inverse: var(--content-inverse);
 
   --color-accent: var(--accent);

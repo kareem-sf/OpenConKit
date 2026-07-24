@@ -1,6 +1,13 @@
 packages:
   - "apps/*"
   - "packages/*"
+overrides:
+  "@wdio/tauri-service>@wdio/native-utils": 2.5.0
+  "mocha>serialize-javascript": 7.0.7
+allowBuilds:
+  edgedriver: false
+  esbuild: true
+  geckodriver: false
 minimumReleaseAgeExclude:
   - "@vitejs/plugin-react@6.0.4"
   - html-parse-stringify@4.0.1

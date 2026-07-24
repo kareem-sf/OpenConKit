@@ -1,0 +1,22 @@
+[package]
+name = "openconkit-contracts-export"
+description = "Export OpenConKit's ts-rs Rust contracts to TypeScript bindings in packages/contracts."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[[bin]]
+name = "openconkit-contracts-export"
+path = "src/main.rs"
+
+[dependencies]
+openconkit-domain.workspace = true
+openconkit-application.workspace = true
+openconkit-tool-sdk.workspace = true
+openconkit-tool-boq-inspector.workspace = true
+ts-rs.workspace = true

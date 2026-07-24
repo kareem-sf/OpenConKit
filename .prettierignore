@@ -8,7 +8,10 @@ Cargo.lock
 .openconkit
 fixtures/generated
 crates/openconkit-desktop/icons
+crates/openconkit-desktop/resources/codex/codex_app_server_protocol.v2.schemas.json
+THIRD_PARTY_NOTICES.md
 **/binaries
+packages/contracts/src/generated
 *.log
 THIRD_PARTY_NOTICES.md
 CHANGELOG.md

@@ -1,0 +1,29 @@
+{
+  "id": "formula-and-literal-injection",
+  "description": "A stale formula result plus formula-looking text that must remain inert source text.",
+  "sheets": [
+    {
+      "name": "BOQ",
+      "headers": ["Item", "Description", "Unit", "Quantity", "Rate", "Amount"],
+      "rows": [
+        ["A1", "Concrete wall", "m2", 10, 5, { "formula": "D2*E2", "result": "49" }],
+        ["A2", "=HYPERLINK(\"https://attacker.invalid\",\"click\")", "m", 1, 2, 2]
+      ]
+    }
+  ],
+  "expected": {
+    "item_rows": 2,
+    "finding_rules": {
+      "boq.amount_mismatch": 1,
+      "boq.formula_result_mismatch": 1,
+      "boq.pareto_summary": 1
+    },
+    "literal_cells": [
+      {
+        "sheet": "BOQ",
+        "cell": "B3",
+        "raw": "=HYPERLINK(\"https://attacker.invalid\",\"click\")"
+      }
+    ]
+  }
+}
