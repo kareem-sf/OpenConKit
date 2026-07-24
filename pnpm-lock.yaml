@@ -34,8 +34,8 @@ importers:
         specifier: 9.27.1
         version: 9.27.1(@wdio/globals@9.27.1)(supports-color@8.1.1)(webdriverio@9.27.1(supports-color@8.1.1))
       '@wdio/mocha-framework':
-        specifier: 9.27.1
-        version: 9.27.1(supports-color@8.1.1)
+        specifier: 9.30.0
+        version: 9.30.0(supports-color@8.1.1)
       '@wdio/spec-reporter':
         specifier: 9.27.1
         version: 9.27.1
@@ -1455,8 +1455,12 @@ packages:
     resolution: {integrity: sha512-HdzDrRs+ywAqbXGKqe1i/bLtCv47plz4TvsHFH3j729OooT5VH38ctFn5aLXgECmiAKDkmH/A6kOq2Zh5DIxww==}
     engines: {node: '>=18.20.0'}
 
-  '@wdio/mocha-framework@9.27.1':
-    resolution: {integrity: sha512-HJ2FtV6qgy7Rs7xGKjyGIKMtFBlCRfxiK9jTElRlOPyQjv79BHc1+sDcQpvufunKuma35rLUCuwtbeY3HotJVg==}
+  '@wdio/logger@9.29.1':
+    resolution: {integrity: sha512-0ZAEIo6PNyMIJPlOGkIgyOJUjcd0pC8/QHlVAAe1c91/IcjZ1X+k0yidXHaboJdN7dq1XPUacmhRdtua0U5EZg==}
+    engines: {node: '>=18.20.0'}
+
+  '@wdio/mocha-framework@9.30.0':
+    resolution: {integrity: sha512-NhxHeIFd0iHpb8sud3ahOilE/bgm5MBBzSq+xSKW+hTUYdmeyy4w+KX5p/+AQ0dsUEIToaA4xjZRUTCwY+65Wg==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/native-core@1.0.0':
@@ -1525,8 +1529,16 @@ packages:
     resolution: {integrity: sha512-EHBNCvLmvpYerln4mb/OBxzKtnavL2wdenjhwuYjzkZMOWHgm/uLXH6sLThM0y6DIbCU72Asth16fo1eDcsofA==}
     engines: {node: '>=18.20.0'}
 
+  '@wdio/types@9.29.1':
+    resolution: {integrity: sha512-jp8jgMv6TS35G96YzHZxw3PVN0Dz6xQ6tnMAicndAJ8Jt9AIXb0ywIse4TjaFywakO3dLoEhlyA3ZtR26vmt+w==}
+    engines: {node: '>=18.20.0'}
+
   '@wdio/utils@9.27.1':
     resolution: {integrity: sha512-s2w1tFrvmpdkZ33LYsIw4ONRdWIIm4MxkyIuibbcG1ILV5fFMS9rU59csHuWIM0KhJoEoLU+fzE3ze9O7TpWhw==}
+    engines: {node: '>=18.20.0'}
+
+  '@wdio/utils@9.30.0':
+    resolution: {integrity: sha512-MhTx8jKOtspogeMUmASFsmL6vRetwCpvfcAFHauYZ62UzPjFwHThIXorzoG90mrcS9Yl+c8Sj9BfX+bdxwXfsg==}
     engines: {node: '>=18.20.0'}
 
   '@wdio/xvfb@9.27.1':
@@ -5271,13 +5283,21 @@ snapshots:
       safe-regex2: 5.1.1
       strip-ansi: 7.2.0
 
-  '@wdio/mocha-framework@9.27.1(supports-color@8.1.1)':
+  '@wdio/logger@9.29.1':
+    dependencies:
+      chalk: 5.6.2
+      loglevel: 1.9.2
+      loglevel-plugin-prefix: 0.8.4
+      safe-regex2: 5.1.1
+      strip-ansi: 7.2.0
+
+  '@wdio/mocha-framework@9.30.0(supports-color@8.1.1)':
     dependencies:
       '@types/mocha': 10.0.10
       '@types/node': 20.19.43
-      '@wdio/logger': 9.18.0
-      '@wdio/types': 9.27.1
-      '@wdio/utils': 9.27.1(supports-color@8.1.1)
+      '@wdio/logger': 9.29.1
+      '@wdio/types': 9.29.1
+      '@wdio/utils': 9.30.0(supports-color@8.1.1)
       mocha: 10.8.2
     transitivePeerDependencies:
       - bare-abort-controller
@@ -5397,11 +5417,37 @@ snapshots:
     dependencies:
       '@types/node': 20.19.43
 
+  '@wdio/types@9.29.1':
+    dependencies:
+      '@types/node': 20.19.43
+
   '@wdio/utils@9.27.1(supports-color@8.1.1)':
     dependencies:
       '@puppeteer/browsers': 2.13.2(supports-color@8.1.1)
       '@wdio/logger': 9.18.0
       '@wdio/types': 9.27.1
+      decamelize: 6.0.1
+      deepmerge-ts: 7.1.5
+      edgedriver: 6.3.0(supports-color@8.1.1)
+      geckodriver: 6.1.1(supports-color@8.1.1)
+      get-port: 7.2.0
+      import-meta-resolve: 4.2.0
+      locate-app: 2.5.0
+      mitt: 3.0.1
+      safaridriver: 1.0.1
+      split2: 4.2.0
+      wait-port: 1.1.0(supports-color@8.1.1)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+      - supports-color
+
+  '@wdio/utils@9.30.0(supports-color@8.1.1)':
+    dependencies:
+      '@puppeteer/browsers': 2.13.2(supports-color@8.1.1)
+      '@wdio/logger': 9.29.1
+      '@wdio/types': 9.29.1
       decamelize: 6.0.1
       deepmerge-ts: 7.1.5
       edgedriver: 6.3.0(supports-color@8.1.1)
@@ -5941,7 +5987,7 @@ snapshots:
 
   edgedriver@6.3.0(supports-color@8.1.1):
     dependencies:
-      '@wdio/logger': 9.18.0
+      '@wdio/logger': 9.29.1
       '@zip.js/zip.js': 2.8.34
       decamelize: 6.0.1
       edge-paths: 3.0.5
@@ -6394,7 +6440,7 @@ snapshots:
 
   geckodriver@6.1.1(supports-color@8.1.1):
     dependencies:
-      '@wdio/logger': 9.18.0
+      '@wdio/logger': 9.29.1
       '@zip.js/zip.js': 2.8.34
       decamelize: 6.0.1
       http-proxy-agent: 7.0.2(supports-color@8.1.1)
