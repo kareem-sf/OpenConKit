@@ -34,6 +34,7 @@ const releaseOrigin = "https://github.com/openai/codex/releases/download";
 const sourceOrigin = "https://raw.githubusercontent.com/openai/codex";
 const universalTarget = "universal-apple-darwin";
 const universalSourceTargets = ["x86_64-apple-darwin", "aarch64-apple-darwin"];
+const downloadAttempts = 5;
 
 function fail(message) {
   throw new Error(`fetch-codex: ${message}`);
@@ -188,7 +189,7 @@ async function run(command, args) {
   });
 }
 
-async function download(url, destination, expectedSize, expectedSha256) {
+async function downloadOnce(url, destination, expectedSize, expectedSha256) {
   const response = await fetch(url, {
     headers: {
       "User-Agent": "OpenConKit-sidecar-fetch",
@@ -221,6 +222,29 @@ async function download(url, destination, expectedSize, expectedSha256) {
   if (digest !== expectedSha256) {
     fail(`asset checksum mismatch: expected ${expectedSha256}, received ${digest}`);
   }
+}
+
+async function download(url, destination, expectedSize, expectedSha256) {
+  let lastError;
+  for (let attempt = 1; attempt <= downloadAttempts; attempt += 1) {
+    await rm(destination, { force: true });
+    try {
+      await downloadOnce(url, destination, expectedSize, expectedSha256);
+      return;
+    } catch (error) {
+      lastError = error;
+      await rm(destination, { force: true });
+      if (attempt < downloadAttempts) {
+        process.stderr.write(
+          `fetch-codex: download attempt ${attempt} failed; retrying verified download\n`,
+        );
+        await new Promise((resolvePromise) => {
+          setTimeout(resolvePromise, attempt * 5_000);
+        });
+      }
+    }
+  }
+  throw lastError;
 }
 
 function normalizeArchiveEntry(entry) {

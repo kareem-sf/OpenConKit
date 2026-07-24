@@ -74,6 +74,25 @@ function Wait-ForProcess {
   }
 }
 
+function Get-Sha256Hex {
+  param([Parameter(Mandatory = $true)][string] $Path)
+
+  $stream = [System.IO.File]::OpenRead($Path)
+  try {
+    $algorithm = [System.Security.Cryptography.SHA256]::Create()
+    try {
+      $digest = $algorithm.ComputeHash($stream)
+    }
+    finally {
+      $algorithm.Dispose()
+    }
+  }
+  finally {
+    $stream.Dispose()
+  }
+  return (-join ($digest | ForEach-Object { $_.ToString("X2") }))
+}
+
 function Invoke-AppLaunchSmoke {
   param(
     [Parameter(Mandatory = $true)][string] $Executable,
@@ -181,8 +200,8 @@ try {
     }
   }
   if (
-    (Get-FileHash -LiteralPath $portableExecutable -Algorithm SHA256).Hash -ne
-    (Get-FileHash -LiteralPath $releaseExecutable -Algorithm SHA256).Hash
+    (Get-Sha256Hex -Path $portableExecutable) -ne
+    (Get-Sha256Hex -Path $releaseExecutable)
   ) {
     throw "Portable executable does not match the release executable."
   }
