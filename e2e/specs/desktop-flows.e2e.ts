@@ -26,6 +26,7 @@ async function mockCommand(command: string, value: unknown) {
 }
 
 async function prepareApp(settings: AppSettings) {
+  await browser.tauri.restoreAllMocks();
   await browser.url(E2E_URL);
   await browser.execute(() => {
     Object.defineProperty(globalThis, "isTauri", {
