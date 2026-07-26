@@ -286,13 +286,15 @@ impl AppSettings {
         };
 
         let default = Self::default();
-        let schema_version = field_or_default(
+        let stored_schema_version = field_or_default(
             obj,
             "schema_version",
             default.schema_version,
             true,
             &mut warnings,
         );
+        let schema_version =
+            normalize_schema_version(stored_schema_version, "settings", &mut warnings);
         let onboarding_completed = field_or_default(
             obj,
             "onboarding_completed",
@@ -706,13 +708,18 @@ impl UpdateChannelState {
         };
 
         let default = Self::default();
+        let stored_schema_version = field_or_default(
+            obj,
+            "schema_version",
+            default.schema_version,
+            true,
+            &mut warnings,
+        );
         (
             Self {
-                schema_version: field_or_default(
-                    obj,
-                    "schema_version",
-                    default.schema_version,
-                    true,
+                schema_version: normalize_schema_version(
+                    stored_schema_version,
+                    "update-channel",
                     &mut warnings,
                 ),
                 channel: field_or_default(obj, "channel", default.channel, false, &mut warnings),
@@ -734,6 +741,20 @@ impl UpdateChannelState {
             message: err.to_string(),
         })
     }
+}
+
+fn normalize_schema_version(stored: u32, document: &str, warnings: &mut Vec<String>) -> u32 {
+    if stored < SETTINGS_SCHEMA_VERSION {
+        warnings.push(format!(
+            "{document} schema version {stored} was upgraded to {SETTINGS_SCHEMA_VERSION}"
+        ));
+    } else if stored > SETTINGS_SCHEMA_VERSION {
+        warnings.push(format!(
+            "{document} schema version {stored} is newer than supported version \
+             {SETTINGS_SCHEMA_VERSION}; loading compatible fields"
+        ));
+    }
+    SETTINGS_SCHEMA_VERSION
 }
 
 #[cfg(test)]
@@ -805,7 +826,11 @@ mod tests {
     #[test]
     fn onboarding_completion_is_explicit_and_patchable() {
         let (mut settings, warnings) = AppSettings::from_json_str(r#"{"schema_version": 1}"#);
-        assert!(warnings.is_empty(), "{warnings:?}");
+        assert!(
+            warnings.iter().any(|warning| warning.contains("upgraded")),
+            "{warnings:?}"
+        );
+        assert_eq!(settings.schema_version, SETTINGS_SCHEMA_VERSION);
         assert!(!settings.onboarding_completed);
 
         settings
@@ -831,10 +856,35 @@ mod tests {
 
     #[test]
     fn unknown_fields_are_ignored() {
-        let raw = r#"{"schema_version": 1, "future_field": {"x": 1}, "theme": "dark"}"#;
+        let raw = r#"{"schema_version": 2, "future_field": {"x": 1}, "theme": "dark"}"#;
         let (settings, warnings) = AppSettings::from_json_str(raw);
         assert!(warnings.is_empty(), "{warnings:?}");
         assert_eq!(settings.theme, Theme::Dark);
+    }
+
+    #[test]
+    fn legacy_and_future_schema_versions_return_the_current_contract() {
+        let (legacy, legacy_warnings) =
+            AppSettings::from_json_str(r#"{"schema_version": 1, "theme": "dark"}"#);
+        assert_eq!(legacy.schema_version, SETTINGS_SCHEMA_VERSION);
+        assert_eq!(legacy.theme, Theme::Dark);
+        assert!(
+            legacy_warnings
+                .iter()
+                .any(|warning| warning.contains("upgraded")),
+            "{legacy_warnings:?}"
+        );
+
+        let (future, future_warnings) =
+            AppSettings::from_json_str(r#"{"schema_version": 99, "theme": "light"}"#);
+        assert_eq!(future.schema_version, SETTINGS_SCHEMA_VERSION);
+        assert_eq!(future.theme, Theme::Light);
+        assert!(
+            future_warnings
+                .iter()
+                .any(|warning| warning.contains("newer than supported")),
+            "{future_warnings:?}"
+        );
     }
 
     #[test]

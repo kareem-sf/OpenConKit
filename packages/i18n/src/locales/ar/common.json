@@ -8,6 +8,11 @@
     "webviewMissing": "يلزم Microsoft Edge WebView2 Runtime. ثبّته من https://developer.microsoft.com/microsoft-edge/webview2/ ثم افتح OpenConKit مجددًا.",
     "genericFailure": "تعذّر تشغيل OpenConKit. أعد تثبيت التطبيق أو راجع ملف README للنسخة المحمولة ومتطلبات WebView2."
   },
+  "fatalError": {
+    "title": "يحتاج OpenConKit إلى إعادة التشغيل",
+    "help": "تعذّر عرض هذه الشاشة بأمان. أعد تشغيل التطبيق ثم حاول مجددًا.",
+    "restart": "إعادة تشغيل OpenConKit"
+  },
   "welcome": {
     "title": "مرحبًا بك في مساحة عمل الإنشاءات المحلية",
     "subtitle": "قبل البدء، تعرّف على كيفية حماية OpenConKit للمصنفات المصدر وإبقائك متحكمًا في بياناتك.",
@@ -33,6 +38,7 @@
     "INVALID_INPUT": "يحتوي الطلب على بيانات غير صالحة.",
     "TOOL_FAILED": "تعذر على أداة التحليل إكمال العملية.",
     "BACKGROUND_TASK_FAILED": "تعذّر على OpenConKit إكمال هذا الإجراء. حاول مرة أخرى.",
+    "IPC_RESPONSE_INVALID": "تلقى OpenConKit بيانات من مكوّن تطبيق غير متوافق. أعد تثبيت التطبيق أو حدّثه.",
     "DOMAIN_INVALID_ID": "أحد المعرّفات المدخلة غير صالح.",
     "DOMAIN_INVALID_SHA256": "بصمة المحتوى المخزنة غير صالحة.",
     "DOMAIN_INVALID_CONFIDENCE": "قيمة الثقة خارج النطاق الصالح.",
@@ -541,6 +547,9 @@
   "settings": {
     "title": "الإعدادات",
     "subtitle": "تحكم في اللغة والمظهر والتحليل الحتمي والخصوصية والتحديثات.",
+    "unavailableTitle": "الإعدادات غير متاحة",
+    "unavailableHelp": "تعذّر على OpenConKit تحميل إعداداته المحلية. أعد محاولة فحوصات بدء التشغيل المحلية.",
+    "retryLoading": "إعادة محاولة تحميل الإعدادات",
     "appearance": "اللغة والمظهر",
     "appearanceHelp": "اتبع إعدادات Windows تلقائيًا أو اختر لغة وسمة ثابتتين.",
     "language": "لغة التطبيق",

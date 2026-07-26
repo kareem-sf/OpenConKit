@@ -1,16 +1,19 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { previewData } from "../dev/previewData";
 import { useWorkspaceStore } from "../state/workspace";
 import { SettingsPage } from "./SettingsPage";
 
-describe("SettingsPage reset", () => {
+const initializeWorkspace = useWorkspaceStore.getState().initialize;
+
+describe("SettingsPage", () => {
   beforeEach(() => {
     const preview = previewData();
     useWorkspaceStore.setState({
       busyAction: null,
       errorCode: null,
+      initialize: initializeWorkspace,
       settings: preview.settings,
       bootstrap: preview.bootstrap,
       manifests: preview.manifests,
@@ -21,6 +24,7 @@ describe("SettingsPage reset", () => {
   });
 
   afterEach(() => {
+    cleanup();
     window.location.hash = "";
   });
 
@@ -45,5 +49,26 @@ describe("SettingsPage reset", () => {
     expect(useWorkspaceStore.getState().runs).toEqual([]);
     expect(useWorkspaceStore.getState().history).toEqual([]);
     expect(dialog.isConnected).toBe(false);
+  });
+
+  it("recovers from unavailable settings after retrying initialization", async () => {
+    const initialize = vi.fn(async () => {
+      useWorkspaceStore.setState({ settings: previewData().settings });
+    });
+    useWorkspaceStore.setState({
+      initialized: true,
+      loading: false,
+      settings: null,
+      initialize,
+    });
+
+    render(<SettingsPage />);
+
+    expect(screen.getByRole("heading", { name: "Settings unavailable" })).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Retry loading settings" }));
+    expect(initialize).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Language and appearance" })).toBeDefined();
+    });
   });
 });

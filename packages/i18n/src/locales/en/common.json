@@ -8,6 +8,11 @@
     "webviewMissing": "Microsoft Edge WebView2 Runtime is required. Install it from https://developer.microsoft.com/microsoft-edge/webview2/ and reopen OpenConKit.",
     "genericFailure": "OpenConKit could not start. Reinstall the app, or check the portable README and WebView2 requirement."
   },
+  "fatalError": {
+    "title": "OpenConKit needs to restart",
+    "help": "This screen could not be rendered safely. Restart the app and try again.",
+    "restart": "Restart OpenConKit"
+  },
   "welcome": {
     "title": "Welcome to your local construction workspace",
     "subtitle": "Before you begin, here is how OpenConKit protects source workbooks and keeps you in control.",
@@ -33,6 +38,7 @@
     "INVALID_INPUT": "The requested operation contains invalid input.",
     "TOOL_FAILED": "The analysis tool could not complete the operation.",
     "BACKGROUND_TASK_FAILED": "OpenConKit could not complete that action. Try again.",
+    "IPC_RESPONSE_INVALID": "OpenConKit received data from an incompatible app component. Reinstall or update the app.",
     "DOMAIN_INVALID_ID": "One of the supplied identifiers is invalid.",
     "DOMAIN_INVALID_SHA256": "A stored content hash is invalid.",
     "DOMAIN_INVALID_CONFIDENCE": "A confidence value is outside the valid range.",
@@ -541,6 +547,9 @@
   "settings": {
     "title": "Settings",
     "subtitle": "Control language, appearance, deterministic analysis, privacy, and updates.",
+    "unavailableTitle": "Settings unavailable",
+    "unavailableHelp": "OpenConKit could not load its local settings. Retry the local startup checks.",
+    "retryLoading": "Retry loading settings",
     "appearance": "Language and appearance",
     "appearanceHelp": "Follow Windows automatically or choose a fixed language and theme.",
     "language": "Application language",

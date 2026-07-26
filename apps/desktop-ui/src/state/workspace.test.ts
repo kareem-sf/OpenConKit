@@ -59,4 +59,18 @@ describe("browser preview workspace actions", () => {
     expect(await useWorkspaceStore.getState().chooseAndImport()).toBeNull();
     expect(useWorkspaceStore.getState().errorCode).toBeNull();
   });
+
+  it("retries initialization when a previous attempt left settings unavailable", async () => {
+    useWorkspaceStore.setState({
+      initialized: true,
+      loading: false,
+      errorCode: "IPC_RESPONSE_INVALID",
+      settings: null,
+    });
+
+    await useWorkspaceStore.getState().initialize();
+
+    expect(useWorkspaceStore.getState().settings).toEqual(previewData().settings);
+    expect(useWorkspaceStore.getState().errorCode).toBeNull();
+  });
 });

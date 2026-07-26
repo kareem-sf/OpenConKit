@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Upgrade legacy v1 settings and updater-state files atomically while
+  preserving user choices, preventing a frontend contract mismatch from
+  showing a generic startup error in the portable app.
+- Keep successfully loaded startup state when another local data source
+  fails, show an actionable Settings recovery screen, and provide a
+  last-resort render fallback instead of a blank window.
+
+### Changed
+
+- Windows portable package smoke tests now launch against a seeded legacy
+  profile and require both config documents to migrate successfully.
+
 ## [0.0.1] - 2026-07-24
 
 ### Added

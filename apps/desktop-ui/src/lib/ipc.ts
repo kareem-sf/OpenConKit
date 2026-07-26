@@ -79,13 +79,20 @@ async function command<T>(
 ): Promise<T> {
   try {
     const result = await invoke<unknown>(name, args);
-    return schema.parse(result);
+    const parsed = schema.safeParse(result);
+    if (!parsed.success) {
+      throw new IpcCommandError("IPC_RESPONSE_INVALID");
+    }
+    return parsed.data;
   } catch (error: unknown) {
     throw normalizeCommandError(error);
   }
 }
 
 function normalizeCommandError(error: unknown): IpcCommandError {
+  if (error instanceof IpcCommandError) {
+    return error;
+  }
   const direct = ipcErrorSchema.safeParse(error);
   if (direct.success) {
     return new IpcCommandError(direct.data.code);
