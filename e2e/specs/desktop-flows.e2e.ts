@@ -37,7 +37,7 @@ async function prepareApp(settings: AppSettings) {
   await mockCommand("bootstrap_status", bootstrap);
   await mockCommand("get_settings", settings);
   await mockCommand("list_tool_manifests", [manifest]);
-  await mockCommand("list_projects", []);
+  await mockCommand("list_storage_groups", []);
 }
 
 async function startApp() {
@@ -46,9 +46,19 @@ async function startApp() {
   });
 }
 
-async function openSettings() {
+async function visibleSettingsLink() {
   const settingsLink = await $('a[href="#/settings"]');
+  if (!(await settingsLink.isDisplayed())) {
+    const navigationToggle = await $(".mobile-nav-toggle");
+    await expect(navigationToggle).toBeDisplayed();
+    await navigationToggle.click();
+  }
   await expect(settingsLink).toBeDisplayed();
+  return settingsLink;
+}
+
+async function openSettings() {
+  const settingsLink = await visibleSettingsLink();
   await settingsLink.click();
   await expect($("#settings-language")).toBeDisplayed();
 }
@@ -74,7 +84,7 @@ describe("OpenConKit desktop renderer", () => {
     const continueButton = await $('[data-testid="welcome-continue"]');
     await expect(continueButton).toBeDisplayed();
     await continueButton.click();
-    await expect($('a[href="#/settings"]')).toBeDisplayed();
+    await visibleSettingsLink();
 
     await updateSettings.update();
     expect(updateSettings).toHaveBeenCalledTimes(1);
