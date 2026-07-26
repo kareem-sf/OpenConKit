@@ -93,6 +93,72 @@ function Get-Sha256Hex {
   return (-join ($digest | ForEach-Object { $_.ToString("X2") }))
 }
 
+function Initialize-LegacyAppProfile {
+  param([Parameter(Mandatory = $true)][string] $ProfileRoot)
+
+  $configDirectory = Join-Path $ProfileRoot ".openconkit\config"
+  New-Item -ItemType Directory -Path $configDirectory -Force | Out-Null
+  $utf8WithoutBom = [System.Text.UTF8Encoding]::new($false)
+  $settings = @"
+{
+  "schema_version": 1,
+  "onboarding_completed": true,
+  "language": "system",
+  "theme": "system",
+  "update_channel": "stable",
+  "tolerances": {
+    "absolute_tolerance": "0.01",
+    "relative_tolerance": "0.001",
+    "decimal_precision": 2
+  },
+  "privacy": {
+    "ai_features_enabled": false,
+    "diagnostic_logging_enabled": false
+  },
+  "advanced": {
+    "use_system_codex": false,
+    "system_codex_binary": null
+  },
+  "last_successful_update_check": null
+}
+"@
+  $updateChannel = @"
+{
+  "schema_version": 1,
+  "channel": "stable",
+  "last_successful_update_check": null
+}
+"@
+  [System.IO.File]::WriteAllText(
+    (Join-Path $configDirectory "settings.json"),
+    $settings,
+    $utf8WithoutBom
+  )
+  [System.IO.File]::WriteAllText(
+    (Join-Path $configDirectory "update-channel.json"),
+    $updateChannel,
+    $utf8WithoutBom
+  )
+}
+
+function Assert-LegacyAppProfileUpgraded {
+  param([Parameter(Mandatory = $true)][string] $ProfileRoot)
+
+  $configDirectory = Join-Path $ProfileRoot ".openconkit\config"
+  $settings = Get-Content -LiteralPath (Join-Path $configDirectory "settings.json") -Raw |
+    ConvertFrom-Json
+  $updateChannel = Get-Content -LiteralPath (Join-Path $configDirectory "update-channel.json") -Raw |
+    ConvertFrom-Json
+  foreach ($document in @($settings, $updateChannel)) {
+    if ($document.schema_version -ne 2) {
+      throw "Portable OpenConKit did not upgrade a legacy config document to schema version 2."
+    }
+  }
+  if (-not $settings.onboarding_completed) {
+    throw "Portable OpenConKit lost a persisted user choice while upgrading settings."
+  }
+}
+
 function Invoke-AppLaunchSmoke {
   param(
     [Parameter(Mandatory = $true)][string] $Executable,
@@ -101,7 +167,7 @@ function Invoke-AppLaunchSmoke {
     [Parameter(Mandatory = $true)][string] $Label
   )
 
-  New-Item -ItemType Directory -Path $ProfileRoot | Out-Null
+  New-Item -ItemType Directory -Path $ProfileRoot -Force | Out-Null
   $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
   $startInfo.FileName = $Executable
   $startInfo.WorkingDirectory = $WorkingDirectory
@@ -206,11 +272,13 @@ try {
     throw "Portable executable does not match the release executable."
   }
 
+  Initialize-LegacyAppProfile -ProfileRoot $portableProfile
   Invoke-AppLaunchSmoke `
     -Executable $portableExecutable `
     -WorkingDirectory $portableRoot `
     -ProfileRoot $portableProfile `
     -Label "Portable OpenConKit"
+  Assert-LegacyAppProfileUpgraded -ProfileRoot $portableProfile
 
   if ($installDirectory.Contains(" ")) {
     throw "NSIS smoke install directory must not contain spaces: $installDirectory"

@@ -4,7 +4,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use jiff::Timestamp;
-use openconkit_application::{AppSettings, ConfigError, HomeLayout, UpdateChannelState};
+use openconkit_application::{
+    AppSettings, ConfigError, HomeLayout, UpdateChannelState, SETTINGS_SCHEMA_VERSION,
+};
 
 use crate::atomic::atomic_write;
 use crate::permissions::harden_file;
@@ -48,12 +50,15 @@ impl SettingsStore {
             return Ok((AppSettings::default(), Vec::new(), Vec::new()));
         }
         let raw = fs::read_to_string(&path).map_err(io_err)?;
+        let upgrade_legacy_schema = has_legacy_schema(&raw);
         let (settings, warnings) = AppSettings::from_json_str(&raw);
         let mut backups = Vec::new();
         if !warnings.is_empty() && raw_is_wholly_corrupt(&warnings) {
             if let Some(rel) = self.backup_corrupt(&path, "settings")? {
                 backups.push(rel);
             }
+            self.save_settings(&settings)?;
+        } else if upgrade_legacy_schema {
             self.save_settings(&settings)?;
         }
         Ok((settings, warnings, backups))
@@ -77,12 +82,15 @@ impl SettingsStore {
             return Ok((UpdateChannelState::default(), Vec::new(), Vec::new()));
         }
         let raw = fs::read_to_string(&path).map_err(io_err)?;
+        let upgrade_legacy_schema = has_legacy_schema(&raw);
         let (state, warnings) = UpdateChannelState::from_json_str(&raw);
         let mut backups = Vec::new();
         if !warnings.is_empty() && raw_is_wholly_corrupt(&warnings) {
             if let Some(rel) = self.backup_corrupt(&path, "update-channel")? {
                 backups.push(rel);
             }
+            self.save_update_channel(&state)?;
+        } else if upgrade_legacy_schema {
             self.save_update_channel(&state)?;
         }
         Ok((state, warnings, backups))
@@ -129,6 +137,17 @@ fn raw_is_wholly_corrupt(warnings: &[String]) -> bool {
             || w.contains("not a JSON object")
             || w.contains("all defaults restored")
     })
+}
+
+fn has_legacy_schema(raw: &str) -> bool {
+    serde_json::from_str::<serde_json::Value>(raw)
+        .ok()
+        .and_then(|value| {
+            value
+                .get("schema_version")
+                .and_then(serde_json::Value::as_u64)
+        })
+        .is_some_and(|version| version < u64::from(SETTINGS_SCHEMA_VERSION))
 }
 
 fn path_from_rel(rel: &str) -> PathBuf {
@@ -254,6 +273,101 @@ mod tests {
         assert_eq!(settings.language, Language::System); // fell back
         assert!(!warnings.is_empty());
         assert!(backups.is_empty());
+        let _ = fs::remove_dir_all(&home);
+    }
+
+    #[test]
+    fn legacy_settings_are_upgraded_without_losing_user_choices() {
+        let home = temp_home();
+        let store = SettingsStore::new(&home);
+        let path = store.settings_path();
+        fs::create_dir_all(path.parent().expect("parent")).expect("mkdir");
+        fs::write(
+            &path,
+            br#"{
+                "schema_version": 1,
+                "onboarding_completed": true,
+                "language": "ar",
+                "theme": "dark",
+                "update_channel": "beta",
+                "tolerances": {
+                    "absolute_tolerance": "0.25",
+                    "relative_tolerance": "0.05",
+                    "decimal_precision": 4
+                },
+                "privacy": {
+                    "ai_features_enabled": false,
+                    "diagnostic_logging_enabled": true
+                },
+                "advanced": {
+                    "use_system_codex": false,
+                    "system_codex_binary": null
+                },
+                "last_successful_update_check": null
+            }"#,
+        )
+        .expect("write legacy settings");
+
+        let (settings, warnings, backups) = store.load_settings().expect("upgrade");
+        assert_eq!(settings.schema_version, SETTINGS_SCHEMA_VERSION);
+        assert!(settings.onboarding_completed);
+        assert_eq!(settings.language, Language::Ar);
+        assert_eq!(settings.theme, Theme::Dark);
+        assert!(
+            warnings.iter().any(|warning| warning.contains("upgraded")),
+            "{warnings:?}"
+        );
+        assert!(backups.is_empty());
+
+        let persisted: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&path).expect("read upgraded settings"))
+                .expect("valid upgraded settings");
+        assert_eq!(
+            persisted
+                .get("schema_version")
+                .and_then(serde_json::Value::as_u64),
+            Some(u64::from(SETTINGS_SCHEMA_VERSION))
+        );
+
+        let (reloaded, warnings, _) = store.load_settings().expect("reload upgraded settings");
+        assert_eq!(reloaded, settings);
+        assert!(warnings.is_empty(), "{warnings:?}");
+        let _ = fs::remove_dir_all(&home);
+    }
+
+    #[test]
+    fn legacy_update_channel_is_upgraded() {
+        let home = temp_home();
+        let store = SettingsStore::new(&home);
+        let path = store.update_channel_path();
+        fs::create_dir_all(path.parent().expect("parent")).expect("mkdir");
+        fs::write(
+            &path,
+            br#"{
+                "schema_version": 1,
+                "channel": "beta",
+                "last_successful_update_check": null
+            }"#,
+        )
+        .expect("write legacy updater state");
+
+        let (state, warnings, backups) = store.load_update_channel().expect("upgrade");
+        assert_eq!(state.schema_version, SETTINGS_SCHEMA_VERSION);
+        assert!(
+            warnings.iter().any(|warning| warning.contains("upgraded")),
+            "{warnings:?}"
+        );
+        assert!(backups.is_empty());
+
+        let persisted: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&path).expect("read upgraded updater state"))
+                .expect("valid upgraded updater state");
+        assert_eq!(
+            persisted
+                .get("schema_version")
+                .and_then(serde_json::Value::as_u64),
+            Some(u64::from(SETTINGS_SCHEMA_VERSION))
+        );
         let _ = fs::remove_dir_all(&home);
     }
 }

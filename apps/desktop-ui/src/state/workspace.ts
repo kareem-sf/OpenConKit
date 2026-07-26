@@ -122,7 +122,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   availableUpdate: null,
 
   initialize: async () => {
-    if (get().loading || get().initialized) {
+    if (get().loading || (get().initialized && get().settings !== null)) {
       return;
     }
     set({ loading: true, errorCode: null });
@@ -141,28 +141,27 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       });
       return;
     }
-    try {
-      const [bootstrap, settings, manifests, library] = await Promise.all([
-        desktopApi.bootstrapStatus(),
-        desktopApi.getSettings(),
-        desktopApi.listToolManifests(),
-        loadLibrary(),
-      ]);
-      set({
-        initialized: true,
-        loading: false,
-        bootstrap,
-        settings,
-        manifests,
-        ...library,
-      });
-    } catch (error: unknown) {
-      set({
-        initialized: true,
-        loading: false,
-        errorCode: errorCodeOf(error),
-      });
-    }
+    const [bootstrap, settings, manifests, library] = await Promise.allSettled([
+      desktopApi.bootstrapStatus(),
+      desktopApi.getSettings(),
+      desktopApi.listToolManifests(),
+      loadLibrary(),
+    ]);
+    const rejected = [bootstrap, settings, manifests, library].find(
+      (result): result is PromiseRejectedResult => result.status === "rejected",
+    );
+    const current = get();
+    set({
+      initialized: true,
+      loading: false,
+      errorCode: rejected ? errorCodeOf(rejected.reason) : null,
+      bootstrap: bootstrap.status === "fulfilled" ? bootstrap.value : current.bootstrap,
+      settings: settings.status === "fulfilled" ? settings.value : current.settings,
+      manifests: manifests.status === "fulfilled" ? manifests.value : current.manifests,
+      revisions: library.status === "fulfilled" ? library.value.revisions : current.revisions,
+      runs: library.status === "fulfilled" ? library.value.runs : current.runs,
+      history: library.status === "fulfilled" ? library.value.history : current.history,
+    });
   },
 
   chooseAndImport: async () => {

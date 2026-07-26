@@ -8,6 +8,7 @@ import type {
   AiRateLimitSnapshot,
   AiRuntimeStatus,
   AnalysisTolerances,
+  AppSettings,
   Language,
   PrivacySettings,
   SettingsPatch,
@@ -85,41 +86,51 @@ function ResetOpenConKitDialog({ onClose }: { onClose: () => void }) {
 
 /** Canonical app-home settings editor. */
 export function SettingsPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const settings = useWorkspaceStore((state) => state.settings);
+  const initialize = useWorkspaceStore((state) => state.initialize);
+  const loading = useWorkspaceStore((state) => state.loading);
+
+  if (!settings) {
+    return (
+      <main className="page-shell settings-page">
+        <header className="page-header">
+          <div>
+            <h1>{t("settings.title")}</h1>
+            <p>{t("settings.subtitle")}</p>
+          </div>
+        </header>
+        <section className="settings-section" aria-labelledby="settings-unavailable-title">
+          <div>
+            <h2 id="settings-unavailable-title">{t("settings.unavailableTitle")}</h2>
+            <p role="alert">{t("settings.unavailableHelp")}</p>
+          </div>
+          <div>
+            <Button type="button" disabled={loading} onClick={() => void initialize()}>
+              {loading ? t("status.loading") : t("settings.retryLoading")}
+            </Button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  return <SettingsEditor settings={settings} />;
+}
+
+function SettingsEditor({ settings }: { settings: AppSettings }) {
+  const { t, i18n } = useTranslation();
   const saveSettings = useWorkspaceStore((state) => state.saveSettings);
   const busy = useWorkspaceStore((state) => state.busyAction === "settings");
   const setThemePreference = useThemeStore((state) => state.setPreference);
-  const [language, setLanguage] = useState<Language>(settings?.language ?? "system");
-  const [theme, setTheme] = useState<Theme>(settings?.theme ?? "system");
-  const [updateChannel, setUpdateChannel] = useState<UpdateChannel>(
-    settings?.update_channel ?? "stable",
-  );
-  const [tolerances, setTolerances] = useState<AnalysisTolerances>(
-    settings?.tolerances ?? {
-      absolute_tolerance: "0.01",
-      relative_tolerance: "0.001",
-      decimal_precision: 2,
-    },
-  );
-  const [privacy, setPrivacy] = useState<PrivacySettings>(
-    settings?.privacy ?? {
-      ai_features_enabled: false,
-      diagnostic_logging_enabled: false,
-    },
-  );
-  const [advanced, setAdvanced] = useState<AdvancedSettings>(
-    settings?.advanced ?? {
-      use_system_codex: false,
-      system_codex_binary: null,
-    },
-  );
+  const [language, setLanguage] = useState<Language>(settings.language);
+  const [theme, setTheme] = useState<Theme>(settings.theme);
+  const [updateChannel, setUpdateChannel] = useState<UpdateChannel>(settings.update_channel);
+  const [tolerances, setTolerances] = useState<AnalysisTolerances>(settings.tolerances);
+  const [privacy, setPrivacy] = useState<PrivacySettings>(settings.privacy);
+  const [advanced, setAdvanced] = useState<AdvancedSettings>(settings.advanced);
   const [saved, setSaved] = useState(false);
   const [showReset, setShowReset] = useState(false);
-
-  if (!settings) {
-    return null;
-  }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
