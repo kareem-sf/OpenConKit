@@ -24,6 +24,7 @@ describe("Button", () => {
     fireEvent.click(button);
     expect(onClick).toHaveBeenCalledOnce();
     expect(button.getAttribute("type")).toBe("submit");
-    expect(button.className).toContain("bg-surface-muted");
+    expect(button.className).toContain("bg-surface-base");
+    expect(button.className).not.toContain("rounded");
   });
 });

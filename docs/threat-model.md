@@ -175,6 +175,13 @@ commands, or a command accepts malicious payloads.
   filesystem or shell permission is granted.
 - Commands take typed parameters deserialized via serde; zod schemas in
   `@openconkit/contracts` validate on the frontend boundary.
+- Workbook ingestion exposes one project-free quick-import command. The
+  obsolete project registration, archive, and project-targeted import
+  commands are not part of the WebView IPC surface.
+- The destructive reset command requires an exact confirmation value, refuses
+  to run during analyses or updates, writes only a fixed marker inside the
+  resolved app home, and restarts before storage deletes data. Startup rejects
+  reset targets that are roots, relative paths, symlinks, or non-directories.
 - IPC failures serialize only stable localizable error codes; backend
   diagnostics and absolute paths do not cross into the WebView.
 - No `eval`, no remote module loading, no `dangerousDisableAssetCspModification`.

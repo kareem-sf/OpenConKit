@@ -15,6 +15,7 @@ export type IconName =
   | "history"
   | "home"
   | "info"
+  | "menu"
   | "more"
   | "plus"
   | "search"
@@ -121,6 +122,14 @@ function paths(name: IconName) {
           <path d="M12 11v6M12 7v.1" />
         </>
       );
+    case "menu":
+      return (
+        <>
+          <path d="M4 7h16" />
+          <path d="M4 12h16" />
+          <path d="M4 17h16" />
+        </>
+      );
     case "more":
       return (
         <>
@@ -175,12 +184,14 @@ function paths(name: IconName) {
 
 /** Consistent 1.75px outline icon used throughout application chrome. */
 export function Icon({ name, size = 20, ...props }: IconProps) {
+  const renderedSize = size * 0.75;
+
   return (
     <svg
       aria-hidden="true"
       viewBox="0 0 24 24"
-      width={size}
-      height={size}
+      width={renderedSize}
+      height={renderedSize}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.75"

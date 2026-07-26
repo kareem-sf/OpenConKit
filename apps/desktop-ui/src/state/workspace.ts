@@ -22,14 +22,11 @@ import { desktopApi, desktopRuntimeAvailable, errorCodeOf } from "../lib/ipc";
 interface WorkspaceState {
   initialized: boolean;
   loading: boolean;
-  busyAction: "project" | "import" | "run" | "export" | "settings" | null;
+  busyAction: "import" | "run" | "export" | "settings" | "reset" | null;
   errorCode: string | null;
   bootstrap: BootstrapStatus | null;
   settings: AppSettings | null;
   manifests: ToolManifest[];
-  projects: Project[];
-  projectActivity: Record<string, ProjectActivity>;
-  selectedProjectId: string | null;
   revisions: SourceRevision[];
   runs: AnalysisRun[];
   history: RunHistoryEntry[];
@@ -39,10 +36,6 @@ interface WorkspaceState {
   lastExport: ExportRecord | null;
   availableUpdate: UpdateCheckResult | null;
   initialize: () => Promise<void>;
-  refreshProjects: () => Promise<void>;
-  selectProject: (projectId: string) => Promise<void>;
-  createProject: (id: string, name: string) => Promise<Project | null>;
-  archiveProject: (projectId: string) => Promise<boolean>;
   chooseAndImport: () => Promise<SourceRevision | null>;
   runRevision: (revision: SourceRevision) => Promise<RunDetails | null>;
   cancelActiveRun: () => Promise<void>;
@@ -50,6 +43,7 @@ interface WorkspaceState {
   exportRun: (kind: ExportKind, language: "en" | "ar") => Promise<ExportRecord | null>;
   revealExport: (exportId: string) => Promise<boolean>;
   saveSettings: (patch: SettingsPatch) => Promise<AppSettings | null>;
+  resetApplication: () => Promise<boolean>;
   receiveProgress: (event: ToolProgressEvent) => void;
   receiveAvailableUpdate: (update: UpdateCheckResult) => void;
   dismissAvailableUpdate: () => void;
@@ -57,26 +51,41 @@ interface WorkspaceState {
   dismissError: () => void;
 }
 
-interface ProjectActivity {
+interface StorageGroupActivity {
   revisions: SourceRevision[];
   runs: AnalysisRun[];
   history: RunHistoryEntry[];
 }
 
-async function projectData(projectId: string) {
+function browserPreviewActive(): boolean {
+  return import.meta.env.DEV && !desktopRuntimeAvailable();
+}
+
+async function storageGroupData(storageGroupId: string): Promise<StorageGroupActivity> {
   const [revisions, runs, history] = await Promise.all([
-    desktopApi.listSourceRevisions(projectId),
-    desktopApi.listAnalysisRuns(projectId),
-    desktopApi.listRunHistory(projectId),
+    desktopApi.listSourceRevisions(storageGroupId),
+    desktopApi.listAnalysisRuns(storageGroupId),
+    desktopApi.listRunHistory(storageGroupId),
   ]);
   return { revisions, runs, history };
 }
 
-async function allProjectData(projects: Project[]): Promise<Record<string, ProjectActivity>> {
-  const entries = await Promise.all(
-    projects.map(async (project) => [project.id, await projectData(project.id)] as const),
+async function loadLibrary(): Promise<Pick<WorkspaceState, "revisions" | "runs" | "history">> {
+  const storageGroups = await desktopApi.listStorageGroups();
+  const activities = await Promise.all(
+    storageGroups.map((group: Project) => storageGroupData(group.id)),
   );
-  return Object.fromEntries(entries);
+  return {
+    revisions: activities
+      .flatMap((activity) => activity.revisions)
+      .sort((left, right) => left.imported_at.localeCompare(right.imported_at)),
+    runs: activities
+      .flatMap((activity) => activity.runs)
+      .sort((left, right) => left.started_at.localeCompare(right.started_at)),
+    history: activities
+      .flatMap((activity) => activity.history)
+      .sort((left, right) => left.run.started_at.localeCompare(right.run.started_at)),
+  };
 }
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
@@ -87,9 +96,6 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   bootstrap: null,
   settings: null,
   manifests: [],
-  projects: [],
-  projectActivity: {},
-  selectedProjectId: null,
   revisions: [],
   runs: [],
   history: [],
@@ -104,57 +110,36 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       return;
     }
     set({ loading: true, errorCode: null });
-    if (import.meta.env.DEV && !desktopRuntimeAvailable()) {
+    if (browserPreviewActive()) {
       const { previewData } = await import("../dev/previewData");
       const preview = previewData();
-      const selectedProjectId = preview.projects[0]?.id ?? null;
-      const data = selectedProjectId
-        ? (preview.projectActivity[selectedProjectId] ?? {
-            revisions: [],
-            runs: [],
-            history: [],
-          })
-        : { revisions: [], runs: [], history: [] };
       set({
         initialized: true,
         loading: false,
         bootstrap: preview.bootstrap,
         settings: preview.settings,
         manifests: preview.manifests,
-        projects: preview.projects,
-        projectActivity: preview.projectActivity,
-        selectedProjectId,
-        revisions: data.revisions,
-        runs: data.runs,
-        history: data.history,
+        revisions: preview.revisions,
+        runs: preview.runs,
+        history: preview.history,
         runDetails: preview.runDetails,
       });
       return;
     }
     try {
-      const [bootstrap, settings, manifests, projects] = await Promise.all([
+      const [bootstrap, settings, manifests, library] = await Promise.all([
         desktopApi.bootstrapStatus(),
         desktopApi.getSettings(),
         desktopApi.listToolManifests(),
-        desktopApi.listProjects(),
+        loadLibrary(),
       ]);
-      const projectActivity = await allProjectData(projects);
-      const selectedProjectId = projects[0]?.id ?? null;
-      const data = selectedProjectId
-        ? (projectActivity[selectedProjectId] ?? { revisions: [], runs: [], history: [] })
-        : { revisions: [], runs: [], history: [] };
       set({
         initialized: true,
         loading: false,
         bootstrap,
         settings,
         manifests,
-        projects,
-        projectActivity,
-        selectedProjectId,
-        revisions: data.revisions,
-        runs: data.runs,
-        history: data.history,
+        ...library,
       });
     } catch (error: unknown) {
       set({
@@ -165,99 +150,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     }
   },
 
-  refreshProjects: async () => {
-    try {
-      set({ errorCode: null });
-      const projects = await desktopApi.listProjects();
-      const projectActivity = await allProjectData(projects);
-      set({ projects, projectActivity });
-    } catch (error: unknown) {
-      set({ errorCode: errorCodeOf(error) });
-    }
-  },
-
-  selectProject: async (projectId) => {
-    const cached = get().projectActivity[projectId];
-    set({
-      selectedProjectId: projectId,
-      revisions: cached?.revisions ?? [],
-      runs: cached?.runs ?? [],
-      history: cached?.history ?? [],
-      runDetails: null,
-      lastExport: null,
-      loading: true,
-      errorCode: null,
-    });
-    try {
-      const data = await projectData(projectId);
-      if (get().selectedProjectId === projectId) {
-        set((state) => ({
-          ...data,
-          loading: false,
-          projectActivity: { ...state.projectActivity, [projectId]: data },
-        }));
-      }
-    } catch (error: unknown) {
-      set({ loading: false, errorCode: errorCodeOf(error) });
-    }
-  },
-
-  createProject: async (id, name) => {
-    set({ busyAction: "project", errorCode: null });
-    try {
-      const project = await desktopApi.registerProject(id, name);
-      const projects = await desktopApi.listProjects();
-      set({
-        busyAction: null,
-        projects,
-        projectActivity: {
-          ...get().projectActivity,
-          [project.id]: { revisions: [], runs: [], history: [] },
-        },
-        selectedProjectId: project.id,
-        revisions: [],
-        runs: [],
-        history: [],
-        runDetails: null,
-      });
-      return project;
-    } catch (error: unknown) {
-      set({ busyAction: null, errorCode: errorCodeOf(error) });
-      return null;
-    }
-  },
-
-  archiveProject: async (projectId) => {
-    set({ busyAction: "project", errorCode: null });
-    try {
-      await desktopApi.archiveProject(projectId);
-      const projects = await desktopApi.listProjects();
-      const projectActivity = await allProjectData(projects);
-      const selectedProjectId = projects[0]?.id ?? null;
-      const data = selectedProjectId
-        ? (projectActivity[selectedProjectId] ?? { revisions: [], runs: [], history: [] })
-        : { revisions: [], runs: [], history: [] };
-      set({
-        busyAction: null,
-        projects,
-        projectActivity,
-        selectedProjectId,
-        revisions: data.revisions,
-        runs: data.runs,
-        history: data.history,
-        runDetails: null,
-      });
-      return true;
-    } catch (error: unknown) {
-      set({ busyAction: null, errorCode: errorCodeOf(error) });
-      return false;
-    }
-  },
-
   chooseAndImport: async () => {
-    const projectId = get().selectedProjectId;
-    if (!projectId) {
-      set({ errorCode: "REPOSITORY_NOT_FOUND" });
+    if (browserPreviewActive()) {
+      set({ busyAction: null, errorCode: null });
       return null;
     }
     try {
@@ -266,13 +161,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         return null;
       }
       set({ busyAction: "import", errorCode: null });
-      const revision = await desktopApi.importSource(projectId, "boq-inspector", sourcePath);
-      const data = await projectData(projectId);
-      set((state) => ({
-        ...data,
-        busyAction: null,
-        projectActivity: { ...state.projectActivity, [projectId]: data },
-      }));
+      const revision = await desktopApi.quickImportSource("boq-inspector", sourcePath);
+      const library = await loadLibrary();
+      set({ ...library, busyAction: null });
       return revision;
     } catch (error: unknown) {
       set({ busyAction: null, errorCode: errorCodeOf(error) });
@@ -281,11 +172,32 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   },
 
   runRevision: async (revision) => {
-    const projectId = get().selectedProjectId;
+    const projectId = revision.project_id;
     const settings = get().settings;
-    if (!projectId || !settings) {
+    if (!settings) {
       set({ errorCode: "REPOSITORY_NOT_FOUND" });
       return null;
+    }
+    if (browserPreviewActive()) {
+      const { previewData } = await import("../dev/previewData");
+      const preview = previewData();
+      const runDetails =
+        preview.runDetails.run.source_revision_id === revision.id ? preview.runDetails : null;
+      if (!runDetails) {
+        set({ busyAction: null, errorCode: "REPOSITORY_NOT_FOUND" });
+        return null;
+      }
+      set({
+        busyAction: null,
+        activeRunId: null,
+        progress: null,
+        errorCode: null,
+        revisions: preview.revisions,
+        runs: preview.runs,
+        history: preview.history,
+        runDetails,
+      });
+      return runDetails;
     }
     const runId = crypto.randomUUID();
     set({
@@ -301,39 +213,29 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     });
     try {
       await desktopApi.runBoqInspector(runId, projectId, revision, settings);
-      const [details, runs, history] = await Promise.all([
+      const [details, library] = await Promise.all([
         desktopApi.openAnalysisRun(runId),
-        desktopApi.listAnalysisRuns(projectId),
-        desktopApi.listRunHistory(projectId),
+        loadLibrary(),
       ]);
       set({
         busyAction: null,
         activeRunId: null,
         progress: null,
         runDetails: details,
-        runs,
-        history,
-        projectActivity: {
-          ...get().projectActivity,
-          [projectId]: { revisions: get().revisions, runs, history },
-        },
+        ...library,
       });
       return details;
     } catch (error: unknown) {
-      const [runs, history] = await Promise.all([
-        desktopApi.listAnalysisRuns(projectId).catch(() => get().runs),
-        desktopApi.listRunHistory(projectId).catch(() => get().history),
-      ]);
+      const library = await loadLibrary().catch(() => ({
+        revisions: get().revisions,
+        runs: get().runs,
+        history: get().history,
+      }));
       set({
         busyAction: null,
         activeRunId: null,
         progress: null,
-        runs,
-        history,
-        projectActivity: {
-          ...get().projectActivity,
-          [projectId]: { revisions: get().revisions, runs, history },
-        },
+        ...library,
         errorCode: errorCodeOf(error),
       });
       return null;
@@ -345,6 +247,10 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (!runId) {
       return;
     }
+    if (browserPreviewActive()) {
+      set({ busyAction: null, activeRunId: null, progress: null, errorCode: null });
+      return;
+    }
     try {
       await desktopApi.cancelToolRun(runId);
     } catch (error: unknown) {
@@ -354,6 +260,16 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   openRun: async (runId) => {
     set({ loading: true, errorCode: null, lastExport: null });
+    if (browserPreviewActive()) {
+      const { previewData } = await import("../dev/previewData");
+      const preview = previewData();
+      const runDetails = preview.runDetails.run.id === runId ? preview.runDetails : null;
+      set({ loading: false, runDetails });
+      if (!runDetails) {
+        set({ errorCode: "REPOSITORY_NOT_FOUND" });
+      }
+      return runDetails;
+    }
     try {
       const runDetails = await desktopApi.openAnalysisRun(runId);
       set({ loading: false, runDetails });
@@ -370,30 +286,23 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       set({ errorCode: "REPOSITORY_NOT_FOUND" });
       return null;
     }
+    if (browserPreviewActive()) {
+      set({ busyAction: null, errorCode: null, lastExport: null });
+      return null;
+    }
     set({ busyAction: "export", errorCode: null, lastExport: null });
     try {
       const exported = await desktopApi.exportAnalysisRun(runId, kind, language);
       const current = get().runDetails;
-      const projectId = current?.run.project_id;
-      const [exports, history] = await Promise.all([
+      const [exports, library] = await Promise.all([
         desktopApi.listRunExports(runId),
-        projectId ? desktopApi.listRunHistory(projectId) : Promise.resolve(get().history),
+        loadLibrary(),
       ]);
       set({
         busyAction: null,
         lastExport: exported,
         runDetails: current ? { ...current, exports } : current,
-        history,
-        projectActivity: projectId
-          ? {
-              ...get().projectActivity,
-              [projectId]: {
-                revisions: get().revisions,
-                runs: get().runs,
-                history,
-              },
-            }
-          : get().projectActivity,
+        ...library,
       });
       return exported;
     } catch (error: unknown) {
@@ -408,6 +317,10 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       set({ errorCode: "REPOSITORY_NOT_FOUND" });
       return false;
     }
+    if (browserPreviewActive()) {
+      set({ errorCode: null });
+      return false;
+    }
     try {
       await desktopApi.revealExport(runId, exportId);
       return true;
@@ -419,7 +332,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   saveSettings: async (patch) => {
     set({ busyAction: "settings", errorCode: null });
-    if (import.meta.env.DEV && !desktopRuntimeAvailable()) {
+    if (browserPreviewActive()) {
       const current = get().settings;
       if (!current) {
         set({ busyAction: null, errorCode: "BACKGROUND_TASK_FAILED" });
@@ -447,6 +360,44 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     } catch (error: unknown) {
       set({ busyAction: null, errorCode: errorCodeOf(error) });
       return null;
+    }
+  },
+
+  resetApplication: async () => {
+    set({ busyAction: "reset", errorCode: null });
+    if (browserPreviewActive()) {
+      const { previewData } = await import("../dev/previewData");
+      const preview = previewData();
+      set({
+        initialized: true,
+        loading: false,
+        busyAction: null,
+        bootstrap: {
+          ...preview.bootstrap,
+          created_fresh: true,
+          database_migrations: [],
+          backups_created: [],
+        },
+        settings: { ...preview.settings, onboarding_completed: false },
+        manifests: preview.manifests,
+        revisions: [],
+        runs: [],
+        history: [],
+        runDetails: null,
+        activeRunId: null,
+        progress: null,
+        lastExport: null,
+        availableUpdate: null,
+      });
+      window.location.hash = "#/";
+      return true;
+    }
+    try {
+      await desktopApi.resetOpenConKit("RESET");
+      return true;
+    } catch (error: unknown) {
+      set({ busyAction: null, errorCode: errorCodeOf(error) });
+      return false;
     }
   },
 

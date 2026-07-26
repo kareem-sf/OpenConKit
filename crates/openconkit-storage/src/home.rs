@@ -10,13 +10,16 @@ use openconkit_application::{AppSettings, BootstrapStatus, HomeLayout, UpdateCha
 use crate::atomic::unique_temp_suffix;
 use crate::database::Database;
 use crate::migrations::MIGRATIONS;
-use crate::permissions::{harden_directory, harden_file};
+use crate::permissions::{harden_directory, harden_file, make_owner_writable};
 use crate::settings_store::SettingsStore;
 use crate::StorageError;
 
 /// Marker file written for the duration of first-launch setup so a crash
 /// mid-bootstrap can be detected and recovered from on the next launch.
 const INTERRUPT_MARKER: &str = "temp/.bootstrap-in-progress";
+
+/// Marker consumed on the next launch before app-home bootstrap.
+const FACTORY_RESET_MARKER: &str = ".factory-reset-requested";
 
 /// Minimal Codex profile: OS credential store preferred, no telemetry, no
 /// self-update (OpenConKit pins the sidecar version). Expanded in Phase 7.
@@ -48,6 +51,7 @@ pub struct BootstrapResult {
 /// 5. Open and migrate the SQLite database.
 /// 6. Clear the interrupt marker and return the status + handles.
 pub fn bootstrap_home(home: &Path) -> Result<BootstrapResult, StorageError> {
+    apply_pending_factory_reset(home)?;
     let created_fresh = !home.exists();
     let interrupt_marker = home.join(path_from_rel(INTERRUPT_MARKER));
     let recovered_from_interrupt = interrupt_marker.exists();
@@ -127,6 +131,76 @@ pub fn bootstrap_home(home: &Path) -> Result<BootstrapResult, StorageError> {
         settings,
         update_channel,
     })
+}
+
+/// Schedule deletion of the canonical app home on the next launch.
+///
+/// The desktop host restarts immediately after writing this marker so the
+/// open SQLite and WebView handles are released before deletion is attempted.
+pub fn request_factory_reset(home: &Path) -> Result<(), StorageError> {
+    validate_factory_reset_target(home)?;
+    let marker = home.join(FACTORY_RESET_MARKER);
+    if marker.exists() {
+        let metadata = fs::symlink_metadata(&marker).map_err(io_err)?;
+        if metadata.file_type().is_file() && !metadata.file_type().is_symlink() {
+            return Ok(());
+        }
+        return Err(StorageError::UnsafeFactoryResetTarget);
+    }
+    crate::atomic::atomic_write(&marker, b"reset-requested\n").map_err(io_err)
+}
+
+fn apply_pending_factory_reset(home: &Path) -> Result<(), StorageError> {
+    let marker = home.join(FACTORY_RESET_MARKER);
+    let marker_metadata = match fs::symlink_metadata(&marker) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => return Err(io_err(error)),
+    };
+    if !marker_metadata.file_type().is_file() || marker_metadata.file_type().is_symlink() {
+        return Err(StorageError::UnsafeFactoryResetTarget);
+    }
+    validate_factory_reset_target(home)?;
+    make_tree_removable(home)?;
+
+    if let Err(error) = fs::remove_dir_all(home) {
+        // Keep the reset request durable if an external process temporarily
+        // holds a file open. The next launch will retry instead of silently
+        // starting against a partially deleted app home.
+        let _ = crate::atomic::atomic_write(&marker, b"reset-requested\n");
+        return Err(io_err(error));
+    }
+    Ok(())
+}
+
+fn make_tree_removable(directory: &Path) -> Result<(), StorageError> {
+    for entry in fs::read_dir(directory).map_err(io_err)? {
+        let path = entry.map_err(io_err)?.path();
+        let metadata = fs::symlink_metadata(&path).map_err(io_err)?;
+        let file_type = metadata.file_type();
+        if file_type.is_symlink() {
+            continue;
+        }
+        if file_type.is_dir() {
+            make_tree_removable(&path)?;
+        } else if file_type.is_file() {
+            make_owner_writable(&path).map_err(io_err)?;
+        } else {
+            return Err(StorageError::UnsafeFactoryResetTarget);
+        }
+    }
+    Ok(())
+}
+
+fn validate_factory_reset_target(home: &Path) -> Result<(), StorageError> {
+    if !home.is_absolute() || home.parent().is_none() || home.file_name().is_none() {
+        return Err(StorageError::UnsafeFactoryResetTarget);
+    }
+    let metadata = fs::symlink_metadata(home).map_err(io_err)?;
+    if !metadata.file_type().is_dir() || metadata.file_type().is_symlink() {
+        return Err(StorageError::UnsafeFactoryResetTarget);
+    }
+    Ok(())
 }
 
 /// Create every top-level directory from [`HomeLayout`].
@@ -322,6 +396,43 @@ mod tests {
         assert!(!migrations_first.is_empty());
 
         let _ = fs::remove_dir_all(&home);
+    }
+
+    #[test]
+    fn requested_factory_reset_recreates_a_fresh_home() {
+        let home = temp_home();
+        let first = bootstrap_home(&home).expect("first");
+        let store = SettingsStore::new(&home);
+        store
+            .save_settings(&AppSettings {
+                onboarding_completed: true,
+                ..AppSettings::default()
+            })
+            .expect("save completed onboarding");
+        let sentinel = home.join(HomeLayout::LOGS_DIR).join("sentinel.log");
+        fs::write(&sentinel, b"private").expect("write sentinel");
+        crate::permissions::harden_read_only_file(&sentinel).expect("make sentinel read-only");
+        request_factory_reset(&home).expect("request reset");
+        drop(first);
+
+        let reset = bootstrap_home(&home).expect("reset bootstrap");
+        assert!(reset.status.created_fresh);
+        assert_eq!(reset.settings, AppSettings::default());
+        assert!(!reset.settings.onboarding_completed);
+        assert!(!sentinel.exists());
+        assert!(!home.join(FACTORY_RESET_MARKER).exists());
+
+        drop(reset);
+        let _ = fs::remove_dir_all(&home);
+    }
+
+    #[test]
+    fn factory_reset_rejects_a_filesystem_root() {
+        let root = Path::new(std::path::MAIN_SEPARATOR_STR);
+        assert!(matches!(
+            request_factory_reset(root),
+            Err(StorageError::UnsafeFactoryResetTarget)
+        ));
     }
 
     #[test]

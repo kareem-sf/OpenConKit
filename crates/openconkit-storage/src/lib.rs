@@ -27,7 +27,7 @@ pub use ai_analyses::SqliteAiAnalysisRepository;
 pub use database::Database;
 pub use exports::SqliteExportRepository;
 pub use findings::SqliteFindingRepository;
-pub use home::{bootstrap_home, resolve_home, BootstrapResult};
+pub use home::{bootstrap_home, request_factory_reset, resolve_home, BootstrapResult};
 pub use migrations::MIGRATIONS;
 pub use projects::SqliteProjectRepository;
 pub use runs::SqliteAnalysisRunRepository;
@@ -60,6 +60,10 @@ pub enum StorageError {
     /// No canonical operating-system home directory could be resolved.
     #[error("could not determine the user home directory")]
     HomeNotFound,
+
+    /// A destructive reset target was not a safe, absolute app-home directory.
+    #[error("refusing to reset an unsafe application-home target")]
+    UnsafeFactoryResetTarget,
 
     /// A database backup target already exists and will not be overwritten.
     #[error("database backup target already exists: {path}")]

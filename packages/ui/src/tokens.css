@@ -52,6 +52,11 @@
   --status-info-subtle: #dbeafe;
 
   --focus-ring: #b45309;
+  --radius-control: 0;
+  --radius-surface: 0;
+  --shadow-soft: none;
+  --shadow-float: none;
+  --shadow-hover: none;
 }
 
 /* Dark scheme. */
@@ -84,6 +89,11 @@
   --status-info-subtle: #172554;
 
   --focus-ring: #fbbf24;
+  --radius-control: 0;
+  --radius-surface: 0;
+  --shadow-soft: none;
+  --shadow-float: none;
+  --shadow-hover: none;
 }
 
 /* Semantic tokens as Tailwind utilities (resolved at runtime per scheme). */

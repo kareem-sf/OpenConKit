@@ -8,42 +8,29 @@ import { Icon } from "../components/Icon";
 import { formatDateTime, formatNumber, formatPercent } from "../lib/format";
 import { useWorkspaceStore } from "../state/workspace";
 
-/** Cross-project persisted analysis history. */
+/** Persisted analysis history across every imported workbook. */
 export function HistoryPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const projects = useWorkspaceStore((state) => state.projects);
-  const activity = useWorkspaceStore((state) => state.projectActivity);
+  const history = useWorkspaceStore((state) => state.history);
+  const revisions = useWorkspaceStore((state) => state.revisions);
   const openRun = useWorkspaceStore((state) => state.openRun);
-  const selectProject = useWorkspaceStore((state) => state.selectProject);
-  const [projectFilter, setProjectFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
   const rows = useMemo(
     () =>
-      projects
-        .flatMap((project) => {
-          const projectData = activity[project.id];
-          return (projectData?.history ?? []).map((entry) => ({
-            project,
-            entry,
-            run: entry.run,
-            revision: projectData?.revisions.find(
-              (candidate) => candidate.id === entry.run.source_revision_id,
-            ),
-          }));
-        })
-        .filter(
-          ({ project, run }) =>
-            (projectFilter === "all" || project.id === projectFilter) &&
-            (statusFilter === "all" || run.status === statusFilter),
-        )
+      history
+        .map((entry) => ({
+          entry,
+          run: entry.run,
+          revision: revisions.find((candidate) => candidate.id === entry.run.source_revision_id),
+        }))
+        .filter(({ run }) => statusFilter === "all" || run.status === statusFilter)
         .sort((left, right) => right.run.started_at.localeCompare(left.run.started_at)),
-    [activity, projectFilter, projects, statusFilter],
+    [history, revisions, statusFilter],
   );
 
-  const showResults = async (projectId: string, runId: string) => {
-    await selectProject(projectId);
+  const showResults = async (runId: string) => {
     if (await openRun(runId)) {
       navigate("/tools/boq-inspector/results");
     }
@@ -59,17 +46,6 @@ export function HistoryPage() {
       </header>
 
       <div className="history-toolbar">
-        <label className="select-control">
-          <span>{t("history.projectFilter")}</span>
-          <select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)}>
-            <option value="all">{t("history.allProjects")}</option>
-            {projects.map((project) => (
-              <option value={project.id} key={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-        </label>
         <label className="select-control">
           <span>{t("history.statusFilter")}</span>
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
@@ -88,7 +64,6 @@ export function HistoryPage() {
           <thead>
             <tr>
               <th>{t("history.columns.when")}</th>
-              <th>{t("history.columns.project")}</th>
               <th>{t("history.columns.source")}</th>
               <th>{t("history.columns.tool")}</th>
               <th>{t("history.columns.status")}</th>
@@ -103,49 +78,52 @@ export function HistoryPage() {
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ project, entry, run, revision }) => (
+            {rows.map(({ entry, run, revision }) => (
               <tr key={run.id}>
-                <td>
+                <td data-label={t("history.columns.when")}>
                   <time dateTime={run.started_at}>
                     {formatDateTime(run.started_at, i18n.language)}
                   </time>
                 </td>
-                <td>
-                  <strong>{project.name}</strong>
-                </td>
-                <td>
+                <td data-label={t("history.columns.source")}>
                   <strong>{revision?.original_filename ?? t("status.notAvailable")}</strong>
                   <code className="history-source-hash" dir="ltr">
                     {entry.source_sha256}
                   </code>
                 </td>
-                <td>{t("tools.boqInspector.name")}</td>
-                <td>
+                <td data-label={t("history.columns.tool")}>{t("tools.boqInspector.name")}</td>
+                <td data-label={t("history.columns.status")}>
                   <span className="status-label">
                     <span className={`status-dot status-${run.status}`} aria-hidden="true" />
                     {t(`status.run.${run.status}`)}
                   </span>
                 </td>
-                <td>
+                <td data-label={t("history.columns.confidence")}>
                   {run.overall_confidence == null
                     ? t("status.notAvailable")
                     : formatPercent(run.overall_confidence, i18n.language)}
                 </td>
-                <td>{formatNumber(entry.finding_count, i18n.language)}</td>
-                <td>{formatNumber(entry.export_count, i18n.language)}</td>
-                <td>
+                <td data-label={t("history.columns.findings")}>
+                  {formatNumber(entry.finding_count, i18n.language)}
+                </td>
+                <td data-label={t("history.columns.exports")}>
+                  {formatNumber(entry.export_count, i18n.language)}
+                </td>
+                <td data-label={t("history.columns.ai")}>
                   {entry.latest_ai_status
                     ? t(`history.ai.${entry.latest_ai_status}`)
                     : t("history.ai.none")}
                 </td>
-                <td dir="ltr">{run.rule_set_version}</td>
-                <td>
+                <td data-label={t("history.columns.version")} dir="ltr">
+                  {run.rule_set_version}
+                </td>
+                <td data-label={t("actions.open")}>
                   <Button
                     variant="ghost"
                     className="h-8 w-8 p-0"
                     disabled={run.status !== "completed"}
                     aria-label={t("history.openRun")}
-                    onClick={() => void showResults(project.id, run.id)}
+                    onClick={() => void showResults(run.id)}
                   >
                     <Icon name="chevron" size={16} className="rtl:rotate-180" />
                   </Button>

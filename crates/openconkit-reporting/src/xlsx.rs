@@ -299,7 +299,6 @@ fn write_source_metadata(
     let metadata = [
         (&report.labels.source_file, &report.metadata.source_filename),
         (&report.labels.source_hash, &report.metadata.source_sha256),
-        (&report.labels.project, &report.metadata.project_id),
         (&report.labels.run, &report.metadata.run_id),
         (&report.labels.title, &report.metadata.tool_name),
         (&report.labels.tool_version, &report.metadata.tool_version),
@@ -525,7 +524,6 @@ pub(crate) mod tests {
                 evidence: "Evidence".into(),
                 source_hash: "Source hash".into(),
                 source_file: "Source file".into(),
-                project: "Project".into(),
                 run: "Run".into(),
                 tool_version: "Tool version".into(),
                 rule_set_version: "Rule set version".into(),
@@ -551,7 +549,6 @@ pub(crate) mod tests {
             metadata: ReportMetadata {
                 source_filename: "=danger.xlsx".into(),
                 source_sha256: "a".repeat(64),
-                project_id: "tower-a".into(),
                 run_id: "run-1".into(),
                 tool_name: "BOQ Inspector".into(),
                 tool_version: "0.0.1".into(),

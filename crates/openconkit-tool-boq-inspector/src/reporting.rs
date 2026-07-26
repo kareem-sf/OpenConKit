@@ -169,7 +169,6 @@ fn build_report(
         metadata: ReportMetadata {
             source_filename: context.source_revision.original_filename.clone(),
             source_sha256: context.source_revision.sha256.to_string(),
-            project_id: context.run.project_id.to_string(),
             run_id: context.run.id.to_string(),
             tool_name: localizer.text("tools.boqInspector.name", &BTreeMap::new())?,
             tool_version: context.run.tool_version.clone(),
@@ -273,7 +272,6 @@ fn report_labels(localizer: &Localizer) -> Result<ReportLabels, ToolError> {
         evidence: t("evidence")?,
         source_hash: t("sourceHash")?,
         source_file: t("sourceFile")?,
-        project: t("project")?,
         run: t("run")?,
         tool_version: t("toolVersion")?,
         rule_set_version: t("ruleSetVersion")?,

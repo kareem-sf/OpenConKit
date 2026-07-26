@@ -51,7 +51,7 @@ import {
 
 import { i18n } from "../i18n";
 
-const projectsSchema = z.array(projectSchema);
+const storageGroupsSchema = z.array(projectSchema);
 const revisionsSchema = z.array(sourceRevisionSchema);
 const runsSchema = z.array(analysisRunSchema);
 const historySchema = z.array(runHistoryEntrySchema);
@@ -129,6 +129,10 @@ export const desktopApi = {
     return command("update_settings", { patch }, appSettingsSchema);
   },
 
+  async resetOpenConKit(confirmation: string): Promise<void> {
+    await command("reset_openconkit", { confirmation }, z.null());
+  },
+
   checkForUpdates(): Promise<UpdateCheckResult> {
     return command("check_for_updates", undefined, updateCheckResultSchema);
   },
@@ -186,16 +190,16 @@ export const desktopApi = {
     return command("cancel_ai_review", { run_id: runId }, z.boolean());
   },
 
-  listProjects(includeArchived = false): Promise<Project[]> {
-    return command("list_projects", { include_archived: includeArchived }, projectsSchema);
-  },
-
-  registerProject(id: string, name: string): Promise<Project> {
-    return command("register_project", { id, name }, projectSchema);
-  },
-
-  async archiveProject(id: string): Promise<void> {
-    await command("archive_project", { id }, z.null());
+  /**
+   * Loads legacy persistence groups so existing workbook revisions and runs
+   * remain accessible after the Projects UI was removed.
+   */
+  listStorageGroups(includeArchived = false): Promise<Project[]> {
+    return command(
+      "list_storage_groups",
+      { include_archived: includeArchived },
+      storageGroupsSchema,
+    );
   },
 
   listSourceRevisions(projectId: string): Promise<SourceRevision[]> {
@@ -226,10 +230,10 @@ export const desktopApi = {
     await command("reveal_export", { run_id: runId, export_id: exportId }, z.null());
   },
 
-  importSource(projectId: string, toolId: string, sourcePath: string): Promise<SourceRevision> {
+  quickImportSource(toolId: string, sourcePath: string): Promise<SourceRevision> {
     return command(
-      "import_source",
-      { project_id: projectId, tool_id: toolId, source_path: sourcePath },
+      "quick_import_source",
+      { tool_id: toolId, source_path: sourcePath },
       sourceRevisionSchema,
     );
   },
@@ -238,8 +242,8 @@ export const desktopApi = {
     const selected = await open({
       multiple: false,
       directory: false,
-      title: i18n.t("projects.importWorkbook"),
-      filters: [{ name: i18n.t("projects.dialogFilter"), extensions: ["xls", "xlsx"] }],
+      title: i18n.t("workbooks.importWorkbook"),
+      filters: [{ name: i18n.t("workbooks.dialogFilter"), extensions: ["xls", "xlsx"] }],
     });
     return typeof selected === "string" ? selected : null;
   },
