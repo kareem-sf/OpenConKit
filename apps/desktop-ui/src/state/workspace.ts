@@ -17,6 +17,7 @@ import type {
   UpdateCheckResult,
 } from "@openconkit/contracts";
 
+import type { PreviewData as BrowserPreviewData } from "../dev/previewData";
 import { desktopApi, desktopRuntimeAvailable, errorCodeOf } from "../lib/ipc";
 
 interface WorkspaceState {
@@ -59,6 +60,21 @@ interface StorageGroupActivity {
 
 function browserPreviewActive(): boolean {
   return import.meta.env.DEV && !desktopRuntimeAvailable();
+}
+
+interface BrowserPreviewModule {
+  previewData: () => BrowserPreviewData;
+}
+
+async function loadBrowserPreviewData(): Promise<BrowserPreviewData> {
+  if (!import.meta.env.DEV) {
+    throw new Error("Browser preview data is unavailable in production.");
+  }
+  const previewModulePath = "../dev/previewData.ts";
+  const previewModule = (await import(
+    /* @vite-ignore */ previewModulePath
+  )) as BrowserPreviewModule;
+  return previewModule.previewData();
 }
 
 async function storageGroupData(storageGroupId: string): Promise<StorageGroupActivity> {
@@ -111,8 +127,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     }
     set({ loading: true, errorCode: null });
     if (browserPreviewActive()) {
-      const { previewData } = await import("../dev/previewData");
-      const preview = previewData();
+      const preview = await loadBrowserPreviewData();
       set({
         initialized: true,
         loading: false,
@@ -179,8 +194,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       return null;
     }
     if (browserPreviewActive()) {
-      const { previewData } = await import("../dev/previewData");
-      const preview = previewData();
+      const preview = await loadBrowserPreviewData();
       const runDetails =
         preview.runDetails.run.source_revision_id === revision.id ? preview.runDetails : null;
       if (!runDetails) {
@@ -261,8 +275,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   openRun: async (runId) => {
     set({ loading: true, errorCode: null, lastExport: null });
     if (browserPreviewActive()) {
-      const { previewData } = await import("../dev/previewData");
-      const preview = previewData();
+      const preview = await loadBrowserPreviewData();
       const runDetails = preview.runDetails.run.id === runId ? preview.runDetails : null;
       set({ loading: false, runDetails });
       if (!runDetails) {
@@ -366,8 +379,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   resetApplication: async () => {
     set({ busyAction: "reset", errorCode: null });
     if (browserPreviewActive()) {
-      const { previewData } = await import("../dev/previewData");
-      const preview = previewData();
+      const preview = await loadBrowserPreviewData();
       set({
         initialized: true,
         loading: false,
