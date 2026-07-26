@@ -1,62 +1,62 @@
 {
   "version": "0.0.1",
   "notes": "",
-  "pub_date": "2026-07-26T07:32:03.962Z",
+  "pub_date": "2026-07-26T19:47:09.745Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdm85QnZuK3FjUG9rN0RIZ3pZZkVBMHY2ZlFxSlNPaVdvSEdSY0hScldoS2ZGQ0c3YTgyT2t3akJwZUwvOFNTYkpIR3kxSXJId2EvbTQ5d1dSaTdOUlFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDQ5MDA0CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6Cll3Y252c1F5d1k4RUxIZ2pjbDNxS3E2cWxyUXVGc3N5ZWU2b3hBM2ZjOWJwZEpJaEpENVhSZVNLQW9jMjcwSTEzVHpjbE56T2NRRk1JdjJ6UFJBeEJRPT0K",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490132208",
-      "size": 240035005
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmdBc0Vob1lUL3ZuRzNpUUdoUVVmS0lUMVFMb0FvYUFaaUxsMWRzYWcyZ0E3RmdDbmlLTkRrRGp4QkxxQlh3MGdxU2pURGhtbXJyWHBCWm9sMTFUcndZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDkzMzQ3CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6CkxjUVozdjUvZ3g1R25rV053ZkFqeVBDNE11RExVR0wwSHhucXFnUWRLQTdxV2N5K3Axek81amd4SGl5emNhNDN3b3FCZ3U5YVgwWEN2bWUxZ1lGaERBPT0K",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490616504",
+      "size": 240042677
     },
     "darwin-aarch64-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdm85QnZuK3FjUG9rN0RIZ3pZZkVBMHY2ZlFxSlNPaVdvSEdSY0hScldoS2ZGQ0c3YTgyT2t3akJwZUwvOFNTYkpIR3kxSXJId2EvbTQ5d1dSaTdOUlFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDQ5MDA0CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6Cll3Y252c1F5d1k4RUxIZ2pjbDNxS3E2cWxyUXVGc3N5ZWU2b3hBM2ZjOWJwZEpJaEpENVhSZVNLQW9jMjcwSTEzVHpjbE56T2NRRk1JdjJ6UFJBeEJRPT0K",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490132208",
-      "size": 240035005
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmdBc0Vob1lUL3ZuRzNpUUdoUVVmS0lUMVFMb0FvYUFaaUxsMWRzYWcyZ0E3RmdDbmlLTkRrRGp4QkxxQlh3MGdxU2pURGhtbXJyWHBCWm9sMTFUcndZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDkzMzQ3CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6CkxjUVozdjUvZ3g1R25rV053ZkFqeVBDNE11RExVR0wwSHhucXFnUWRLQTdxV2N5K3Axek81amd4SGl5emNhNDN3b3FCZ3U5YVgwWEN2bWUxZ1lGaERBPT0K",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490616504",
+      "size": 240042677
     },
     "darwin-universal": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdm85QnZuK3FjUG9rN0RIZ3pZZkVBMHY2ZlFxSlNPaVdvSEdSY0hScldoS2ZGQ0c3YTgyT2t3akJwZUwvOFNTYkpIR3kxSXJId2EvbTQ5d1dSaTdOUlFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDQ5MDA0CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6Cll3Y252c1F5d1k4RUxIZ2pjbDNxS3E2cWxyUXVGc3N5ZWU2b3hBM2ZjOWJwZEpJaEpENVhSZVNLQW9jMjcwSTEzVHpjbE56T2NRRk1JdjJ6UFJBeEJRPT0K",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490132208",
-      "size": 240035005
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmdBc0Vob1lUL3ZuRzNpUUdoUVVmS0lUMVFMb0FvYUFaaUxsMWRzYWcyZ0E3RmdDbmlLTkRrRGp4QkxxQlh3MGdxU2pURGhtbXJyWHBCWm9sMTFUcndZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDkzMzQ3CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6CkxjUVozdjUvZ3g1R25rV053ZkFqeVBDNE11RExVR0wwSHhucXFnUWRLQTdxV2N5K3Axek81amd4SGl5emNhNDN3b3FCZ3U5YVgwWEN2bWUxZ1lGaERBPT0K",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490616504",
+      "size": 240042677
     },
     "darwin-universal-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdm85QnZuK3FjUG9rN0RIZ3pZZkVBMHY2ZlFxSlNPaVdvSEdSY0hScldoS2ZGQ0c3YTgyT2t3akJwZUwvOFNTYkpIR3kxSXJId2EvbTQ5d1dSaTdOUlFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDQ5MDA0CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6Cll3Y252c1F5d1k4RUxIZ2pjbDNxS3E2cWxyUXVGc3N5ZWU2b3hBM2ZjOWJwZEpJaEpENVhSZVNLQW9jMjcwSTEzVHpjbE56T2NRRk1JdjJ6UFJBeEJRPT0K",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490132208",
-      "size": 240035005
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmdBc0Vob1lUL3ZuRzNpUUdoUVVmS0lUMVFMb0FvYUFaaUxsMWRzYWcyZ0E3RmdDbmlLTkRrRGp4QkxxQlh3MGdxU2pURGhtbXJyWHBCWm9sMTFUcndZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDkzMzQ3CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6CkxjUVozdjUvZ3g1R25rV053ZkFqeVBDNE11RExVR0wwSHhucXFnUWRLQTdxV2N5K3Axek81amd4SGl5emNhNDN3b3FCZ3U5YVgwWEN2bWUxZ1lGaERBPT0K",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490616504",
+      "size": 240042677
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdm85QnZuK3FjUG9rN0RIZ3pZZkVBMHY2ZlFxSlNPaVdvSEdSY0hScldoS2ZGQ0c3YTgyT2t3akJwZUwvOFNTYkpIR3kxSXJId2EvbTQ5d1dSaTdOUlFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDQ5MDA0CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6Cll3Y252c1F5d1k4RUxIZ2pjbDNxS3E2cWxyUXVGc3N5ZWU2b3hBM2ZjOWJwZEpJaEpENVhSZVNLQW9jMjcwSTEzVHpjbE56T2NRRk1JdjJ6UFJBeEJRPT0K",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490132208",
-      "size": 240035005
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmdBc0Vob1lUL3ZuRzNpUUdoUVVmS0lUMVFMb0FvYUFaaUxsMWRzYWcyZ0E3RmdDbmlLTkRrRGp4QkxxQlh3MGdxU2pURGhtbXJyWHBCWm9sMTFUcndZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDkzMzQ3CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6CkxjUVozdjUvZ3g1R25rV053ZkFqeVBDNE11RExVR0wwSHhucXFnUWRLQTdxV2N5K3Axek81amd4SGl5emNhNDN3b3FCZ3U5YVgwWEN2bWUxZ1lGaERBPT0K",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490616504",
+      "size": 240042677
     },
     "darwin-x86_64-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdm85QnZuK3FjUG9rN0RIZ3pZZkVBMHY2ZlFxSlNPaVdvSEdSY0hScldoS2ZGQ0c3YTgyT2t3akJwZUwvOFNTYkpIR3kxSXJId2EvbTQ5d1dSaTdOUlFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDQ5MDA0CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6Cll3Y252c1F5d1k4RUxIZ2pjbDNxS3E2cWxyUXVGc3N5ZWU2b3hBM2ZjOWJwZEpJaEpENVhSZVNLQW9jMjcwSTEzVHpjbE56T2NRRk1JdjJ6UFJBeEJRPT0K",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490132208",
-      "size": 240035005
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmdBc0Vob1lUL3ZuRzNpUUdoUVVmS0lUMVFMb0FvYUFaaUxsMWRzYWcyZ0E3RmdDbmlLTkRrRGp4QkxxQlh3MGdxU2pURGhtbXJyWHBCWm9sMTFUcndZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDkzMzQ3CWZpbGU6T3BlbkNvbktpdC5hcHAudGFyLmd6CkxjUVozdjUvZ3g1R25rV053ZkFqeVBDNE11RExVR0wwSHhucXFnUWRLQTdxV2N5K3Axek81amd4SGl5emNhNDN3b3FCZ3U5YVgwWEN2bWUxZ1lGaERBPT0K",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490616504",
+      "size": 240042677
     },
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdnZyODBPT0k1UXM2Y1VwTFZaWVpEQUdKYVdqZlZvbDA3bTQ4N1cwK2ZvZHVFSkREQXgwZ0JlUEhmUDQ4Z2FFY0JXWmV5NHRMRnFubXV2azVWdHNtNkFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDUxMTA3CWZpbGU6T3BlbkNvbktpdF8wLjAuMV9hbWQ2NC5BcHBJbWFnZQoxK010WDdMV0hWLzlGUFZGZThNQ01uTmhzaW8vV0lOTEQ3WGhDbDJkWUVjc1dFb0EvM2VZSk11TzVaZHZmenhmSldxcUJIUEJVU1REOXprZEtWdzBBUT09Cg==",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490151429",
-      "size": 191068664
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdnExSjlqR2hnQkYwTmZ2eFdZNFpjVmVHbS9SMjk3VjcyTFgvaFk5UFJlMmRqN0ZabXBrN1dnME0wNDMwT3JPVGF2SzdLc0NmWm90QzV1cUk1aTllUlFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDk1MjE0CWZpbGU6T3BlbkNvbktpdF8wLjAuMV9hbWQ2NC5BcHBJbWFnZQpMenpBNFIxM1Y5SnNWOHNLcUZJSkwvaEZiQW5Nd3ROQjFEOWorZllXTHZGbmxzbFdORlkyTzdKVnY3R2xtV3VNa1o3YUhQaytvek1pNVR5T0YrUm9BQT09Cg==",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490639201",
+      "size": 191076856
     },
     "linux-x86_64-appimage": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdnZyODBPT0k1UXM2Y1VwTFZaWVpEQUdKYVdqZlZvbDA3bTQ4N1cwK2ZvZHVFSkREQXgwZ0JlUEhmUDQ4Z2FFY0JXWmV5NHRMRnFubXV2azVWdHNtNkFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDUxMTA3CWZpbGU6T3BlbkNvbktpdF8wLjAuMV9hbWQ2NC5BcHBJbWFnZQoxK010WDdMV0hWLzlGUFZGZThNQ01uTmhzaW8vV0lOTEQ3WGhDbDJkWUVjc1dFb0EvM2VZSk11TzVaZHZmenhmSldxcUJIUEJVU1REOXprZEtWdzBBUT09Cg==",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490151429",
-      "size": 191068664
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdnExSjlqR2hnQkYwTmZ2eFdZNFpjVmVHbS9SMjk3VjcyTFgvaFk5UFJlMmRqN0ZabXBrN1dnME0wNDMwT3JPVGF2SzdLc0NmWm90QzV1cUk1aTllUlFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDk1MjE0CWZpbGU6T3BlbkNvbktpdF8wLjAuMV9hbWQ2NC5BcHBJbWFnZQpMenpBNFIxM1Y5SnNWOHNLcUZJSkwvaEZiQW5Nd3ROQjFEOWorZllXTHZGbmxzbFdORlkyTzdKVnY3R2xtV3VNa1o3YUhQaytvek1pNVR5T0YrUm9BQT09Cg==",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490639201",
+      "size": 191076856
     },
     "linux-x86_64-deb": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmszM3NCVFZNR25HMXljc3Y1MVZGaGpCMjNrVWRUdWRaWGc1R2NjVFVvWHdoNndHT3lJbUdnOHEvQ21Ibll0ZTJxbTFxb2U5MzlWWkxrOU9DR2VteUEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDUxMTA3CWZpbGU6T3BlbkNvbktpdF8wLjAuMV9hbWQ2NC5kZWIKZ1ptSUt1ZHlwN3h6TDEwRVM3Rm5CNitiU2pUSXl0MEozTDNvTnQ2OXpmbFVvK09CS01iZmM4YndYenRPUDZLVVo4VzN0TUJ1dXRWd3M0a0RNTXBHQmc9PQo=",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490151371",
-      "size": 128238140
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdnJjWFNtVWdNTzY3NXpEaU9QV0wvZE1HSmFPaUw4dHFaaUYvZUxJMDB1OGJLMURjZVl5QkQ1WEJObjBTSWtQVkY1VW9QeWM1OEFPMjFHV0JQdm1mRnc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDk1MjE0CWZpbGU6T3BlbkNvbktpdF8wLjAuMV9hbWQ2NC5kZWIKdHpWV0RoOHM3UThCTDVFMWRVdGE2NTI1MFlZdmJ3T293TEUxNDd3RUUwMW41M3pRQU1UWktkOWJGTjk3QVFHbkE5dnZqNzg0Z3AxN0VQZ3N0SmQ0RHc9PQo=",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490639099",
+      "size": 128238172
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdnJHK2daMnowYXcxa3BacUtBN1dKMWxobFh2R2owKzZRQ1B1NVVzcW9EdHZFYkVZdkpKRjg1MTdOMlQ4OGdaU0d4ak4rWkl6TGRjWkNOWUg4VWtZSkFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDUwMjc5CWZpbGU6T3BlbkNvbktpdF8wLjAuMV94NjQtc2V0dXAuZXhlCnkwUE1kVVgwOXN6WHFzZ0Q2NUswcXFCVmpHNGVOOUR0R0lNdVlkTU1xTFV2NTdpWDUvL1ZkNlJ3MEIwTzZ5ZUlBeHUwaVVzQnNqamJPL3ZqdkxuUURBPT0K",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490144720",
-      "size": 88375935
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmtHR2RMYkxMSWVmMCtoVDFNTE1mZXNDdUFFY3VrbjVvNUU5ZjRKS0d3WlZzTDJYcDVONlRsd3BkY0x6bThqc09zVjBkV0x0QVZCYWY5MXp6SmFnN2dFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDk0MzY4CWZpbGU6T3BlbkNvbktpdF8wLjAuMV94NjQtc2V0dXAuZXhlClpKTmZTOXp6RFZYM1hlOXU5YTZNdWZBdXFqWWxyem5BYUdBcHZhdzJTazZKSTZSRzR4OWxCSGhtRUN4ZFpHV0Z0RkVFb1NyVVdHTkFaV3VLNUY0L0JBPT0K",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490628256",
+      "size": 88392173
     },
     "windows-x86_64-nsis": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdnJHK2daMnowYXcxa3BacUtBN1dKMWxobFh2R2owKzZRQ1B1NVVzcW9EdHZFYkVZdkpKRjg1MTdOMlQ4OGdaU0d4ak4rWkl6TGRjWkNOWUg4VWtZSkFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDUwMjc5CWZpbGU6T3BlbkNvbktpdF8wLjAuMV94NjQtc2V0dXAuZXhlCnkwUE1kVVgwOXN6WHFzZ0Q2NUswcXFCVmpHNGVOOUR0R0lNdVlkTU1xTFV2NTdpWDUvL1ZkNlJ3MEIwTzZ5ZUlBeHUwaVVzQnNqamJPL3ZqdkxuUURBPT0K",
-      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490144720",
-      "size": 88375935
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUU9TcVdXYXJLdmtHR2RMYkxMSWVmMCtoVDFNTE1mZXNDdUFFY3VrbjVvNUU5ZjRKS0d3WlZzTDJYcDVONlRsd3BkY0x6bThqc09zVjBkV0x0QVZCYWY5MXp6SmFnN2dFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1MDk0MzY4CWZpbGU6T3BlbkNvbktpdF8wLjAuMV94NjQtc2V0dXAuZXhlClpKTmZTOXp6RFZYM1hlOXU5YTZNdWZBdXFqWWxyem5BYUdBcHZhdzJTazZKSTZSRzR4OWxCSGhtRUN4ZFpHV0Z0RkVFb1NyVVdHTkFaV3VLNUY0L0JBPT0K",
+      "url": "https://api.github.com/repos/kareem-sf/OpenConKit/releases/assets/490628256",
+      "size": 88392173
     }
   }
 }
