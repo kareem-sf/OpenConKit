@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { previewData } from "../dev/previewData";
@@ -24,6 +24,7 @@ describe("SettingsPage", () => {
   });
 
   afterEach(() => {
+    cleanup();
     window.location.hash = "";
   });
 
