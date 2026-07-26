@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { HashRouter, Route, Routes } from "react-router";
+import { HashRouter, Navigate, Route, Routes } from "react-router";
 
 import { directionOf } from "@openconkit/i18n";
 
@@ -10,7 +10,6 @@ import { AboutPage } from "./routes/AboutPage";
 import { BoqInspectorPage } from "./routes/BoqInspectorPage";
 import { HistoryPage } from "./routes/HistoryPage";
 import { HomePage } from "./routes/HomePage";
-import { ProjectsPage } from "./routes/ProjectsPage";
 import { SettingsPage } from "./routes/SettingsPage";
 import { WelcomePage } from "./routes/WelcomePage";
 import { useWorkspaceStore } from "./state/workspace";
@@ -121,12 +120,12 @@ export function App() {
         <Routes>
           <Route element={<AppShell />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/tools/boq-inspector" element={<BoqInspectorPage />} />
             <Route path="/tools/boq-inspector/results" element={<BoqInspectorPage results />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
       )}

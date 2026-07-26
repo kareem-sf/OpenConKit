@@ -24,7 +24,7 @@ export function AboutPage() {
   return (
     <main className="page-shell about-page">
       <header className="about-identity">
-        <img src={logoUrl} alt="" width={72} height={72} />
+        <img src={logoUrl} alt="" width={54} height={54} />
         <div>
           <h1>{t("app.name")}</h1>
           <p>{t("app.tagline")}</p>

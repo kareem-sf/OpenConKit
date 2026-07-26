@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
@@ -43,15 +43,13 @@ function severityIcon(severity: Severity) {
 function WorkbookSelection() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const projects = useWorkspaceStore((state) => state.projects);
-  const selectedProjectId = useWorkspaceStore((state) => state.selectedProjectId);
   const revisions = useWorkspaceStore((state) => state.revisions);
-  const selectProject = useWorkspaceStore((state) => state.selectProject);
   const chooseAndImport = useWorkspaceStore((state) => state.chooseAndImport);
   const runRevision = useWorkspaceStore((state) => state.runRevision);
   const busyAction = useWorkspaceStore((state) => state.busyAction);
   const progress = useWorkspaceStore((state) => state.progress);
   const cancel = useWorkspaceStore((state) => state.cancelActiveRun);
+  const desktopAvailable = desktopRuntimeAvailable();
   const [selectedRevisionId, setSelectedRevisionId] = useState<string | null>(
     revisions.at(-1)?.id ?? null,
   );
@@ -79,27 +77,7 @@ function WorkbookSelection() {
           <h2 id="analysis-source-title">{t("boq.start.chooseSource")}</h2>
           <p>{t("boq.start.chooseSourceHelp")}</p>
 
-          <label className="field-control">
-            <span>{t("boq.start.project")}</span>
-            <select
-              value={selectedProjectId ?? ""}
-              onChange={(event) => {
-                setSelectedRevisionId(null);
-                void selectProject(event.target.value);
-              }}
-            >
-              <option value="" disabled>
-                {t("boq.start.selectProject")}
-              </option>
-              {projects.map((project) => (
-                <option value={project.id} key={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          {selectedProjectId && revisions.length > 0 ? (
+          {revisions.length > 0 ? (
             <div className="revision-list" role="radiogroup" aria-label={t("boq.start.sources")}>
               {[...revisions].reverse().map((revision, index) => {
                 const selected = revision.id === selectedRevision?.id;
@@ -120,7 +98,7 @@ function WorkbookSelection() {
                       <strong>{revision.original_filename}</strong>
                       <small>{formatDateTime(revision.imported_at, i18n.language)}</small>
                     </span>
-                    {index === 0 && <span className="subtle-label">{t("projects.current")}</span>}
+                    {index === 0 && <span className="subtle-label">{t("workbooks.latest")}</span>}
                     <span dir="ltr" className="short-hash">
                       {revision.sha256.slice(0, 12)}…
                     </span>
@@ -132,10 +110,11 @@ function WorkbookSelection() {
             <div className="empty-panel min-h-52">
               <Icon name="file" size={30} />
               <h3>{t("boq.start.noWorkbook")}</h3>
-              <p>{t("projects.copyUnchanged")}</p>
+              <p>{t("workbooks.copyUnchanged")}</p>
               <Button
                 variant="secondary"
-                disabled={!selectedProjectId || busyAction === "import"}
+                disabled={!desktopAvailable || busyAction === "import"}
+                title={!desktopAvailable ? t("workbooks.desktopImportOnly") : undefined}
                 onClick={async () => {
                   const revision = await chooseAndImport();
                   if (revision) {
@@ -144,7 +123,7 @@ function WorkbookSelection() {
                 }}
               >
                 <Icon name="upload" size={17} />
-                {t("projects.chooseFile")}
+                {t("workbooks.chooseFile")}
               </Button>
             </div>
           )}
@@ -153,7 +132,8 @@ function WorkbookSelection() {
             <div className="setup-actions">
               <Button
                 variant="secondary"
-                disabled={busyAction === "import"}
+                disabled={!desktopAvailable || busyAction === "import"}
+                title={!desktopAvailable ? t("workbooks.desktopImportOnly") : undefined}
                 onClick={async () => {
                   const revision = await chooseAndImport();
                   if (revision) {
@@ -162,7 +142,7 @@ function WorkbookSelection() {
                 }}
               >
                 <Icon name="upload" size={17} />
-                {t("projects.importWorkbook")}
+                {t("workbooks.importWorkbook")}
               </Button>
               <Button
                 disabled={!selectedRevision || busyAction === "run"}
@@ -177,6 +157,7 @@ function WorkbookSelection() {
               </Button>
             </div>
           )}
+          {!desktopAvailable && <p className="muted-copy">{t("workbooks.desktopImportOnly")}</p>}
         </div>
 
         <aside className="setup-assurance">
@@ -323,12 +304,17 @@ function ExportControls() {
   const lastExport = useWorkspaceStore((state) => state.lastExport);
   const [kind, setKind] = useState<ExportKind>("xlsx");
   const [language, setLanguage] = useState<"en" | "ar">(supportedLocale(i18n.language));
+  const desktopAvailable = desktopRuntimeAvailable();
 
   return (
     <div className="export-controls">
       <label>
         <span className="sr-only">{t("exports.format")}</span>
-        <select value={kind} onChange={(event) => setKind(event.target.value as ExportKind)}>
+        <select
+          value={kind}
+          disabled={!desktopAvailable}
+          onChange={(event) => setKind(event.target.value as ExportKind)}
+        >
           <option value="xlsx">{t("exports.xlsx")}</option>
           <option value="pdf">{t("exports.pdf")}</option>
         </select>
@@ -337,16 +323,22 @@ function ExportControls() {
         <span className="sr-only">{t("exports.language")}</span>
         <select
           value={language}
+          disabled={!desktopAvailable}
           onChange={(event) => setLanguage(event.target.value === "ar" ? "ar" : "en")}
         >
           <option value="en">{t("language.en")}</option>
           <option value="ar">{t("language.ar")}</option>
         </select>
       </label>
-      <Button disabled={busy} onClick={() => void exportRun(kind, language)}>
+      <Button
+        disabled={!desktopAvailable || busy}
+        title={!desktopAvailable ? t("exports.desktopOnly") : undefined}
+        onClick={() => void exportRun(kind, language)}
+      >
         <Icon name="export" size={17} />
         {busy ? t("exports.generating") : t("exports.exportReport")}
       </Button>
+      {!desktopAvailable && <span className="muted-copy">{t("exports.desktopOnly")}</span>}
       {lastExport && (
         <div className="export-success" role="status">
           <Icon name="check" size={16} />
@@ -612,15 +604,25 @@ function AiTextList({ title, values }: { title: string; values: string[] }) {
 function ResultsWorkspace() {
   const { t, i18n } = useTranslation();
   const details = useWorkspaceStore((state) => state.runDetails);
-  const projects = useWorkspaceStore((state) => state.projects);
   const revisions = useWorkspaceStore((state) => state.revisions);
   const [search, setSearch] = useState("");
   const [severity, setSeverity] = useState<Severity | "all">("all");
   const [category, setCategory] = useState<FindingCategory | "all">("all");
   const [sort, setSort] = useState<"severity" | "confidence" | "location">("severity");
-  const [selectedFindingId, setSelectedFindingId] = useState<string | null>(
-    details?.findings[0]?.id ?? null,
-  );
+  const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!selectedFindingId) {
+      return;
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedFindingId(null);
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [selectedFindingId]);
 
   const parsed = boqInspectorOutputSchema.safeParse(details?.output);
   if (!details || !parsed.success) {
@@ -636,7 +638,6 @@ function ResultsWorkspace() {
   }
 
   const output = parsed.data;
-  const project = projects.find((candidate) => candidate.id === details.run.project_id);
   const revision = revisions.find((candidate) => candidate.id === details.run.source_revision_id);
   const highCount = output.findings.filter(
     (finding) => finding.severity === "critical" || finding.severity === "high",
@@ -684,10 +685,7 @@ function ResultsWorkspace() {
     <main className={`results-workspace ${selectedFinding ? "drawer-open" : ""}`}>
       <section className="results-main">
         <div className="context-bar">
-          <span>{t("projects.title")}</span>
-          <strong>{project?.name ?? details.run.project_id}</strong>
-          <span className="context-divider" aria-hidden="true" />
-          <span>{t("projects.sourceReadOnly")}</span>
+          <span>{t("workbooks.sourceReadOnly")}</span>
           <strong>{revision?.original_filename ?? details.run.source_revision_id}</strong>
         </div>
         <header className="results-header">
@@ -840,24 +838,31 @@ function ResultsWorkspace() {
                   const selected = finding.id === selectedFinding?.id;
                   return (
                     <tr key={finding.id} className={selected ? "selected-row" : undefined}>
-                      <td>
+                      <td data-label={t("boq.results.severity")}>
                         <span className={`severity-label severity-${finding.severity}`}>
                           <Icon name={severityIcon(finding.severity)} size={16} />
                           {t(`severity.${finding.severity}`)}
                         </span>
                       </td>
-                      <td>
+                      <td data-label={t("boq.results.finding")}>
                         <button
+                          type="button"
                           className="finding-open-button"
                           onClick={() => setSelectedFindingId(finding.id)}
                         >
                           {t(finding.title_key, finding.title_params)}
                         </button>
                       </td>
-                      <td dir="ltr">{findingLocation(finding)}</td>
-                      <td>{formatPercent(finding.confidence, i18n.language)}</td>
-                      <td>{t(`category.${finding.category}`)}</td>
-                      <td>
+                      <td data-label={t("boq.results.location")} dir="ltr">
+                        {findingLocation(finding)}
+                      </td>
+                      <td data-label={t("boq.results.confidence")}>
+                        {formatPercent(finding.confidence, i18n.language)}
+                      </td>
+                      <td data-label={t("boq.results.category")}>
+                        {t(`category.${finding.category}`)}
+                      </td>
+                      <td data-label={t("actions.open")}>
                         <Button
                           variant="ghost"
                           className="h-8 w-8 p-0"
@@ -896,7 +901,15 @@ function ResultsWorkspace() {
         </footer>
       </section>
       {selectedFinding && (
-        <FindingDrawer finding={selectedFinding} onClose={() => setSelectedFindingId(null)} />
+        <>
+          <button
+            type="button"
+            className="finding-drawer-scrim"
+            aria-label={t("actions.close")}
+            onClick={() => setSelectedFindingId(null)}
+          />
+          <FindingDrawer finding={selectedFinding} onClose={() => setSelectedFindingId(null)} />
+        </>
       )}
     </main>
   );

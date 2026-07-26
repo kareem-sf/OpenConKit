@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import logoUrl from "../../../../branding/logo.svg";
@@ -15,7 +16,6 @@ const NAVIGATION: ReadonlyArray<{
   end?: boolean;
 }> = [
   { to: "/", labelKey: "nav.home", icon: "home", end: true },
-  { to: "/projects", labelKey: "nav.projects", icon: "folder" },
   {
     to: "/tools/boq-inspector",
     labelKey: "tools.boqInspector.name",
@@ -28,22 +28,74 @@ const NAVIGATION: ReadonlyArray<{
 /** Persistent desktop navigation rail and content frame. */
 export function AppShell() {
   const { t } = useTranslation();
+  const location = useLocation();
+  const [navigationOpen, setNavigationOpen] = useState(false);
   const initialized = useWorkspaceStore((state) => state.initialized);
   const loading = useWorkspaceStore((state) => state.loading);
+  const dismissError = useWorkspaceStore((state) => state.dismissError);
+  const previousPath = useRef(location.pathname);
+
+  useEffect(() => {
+    if (previousPath.current !== location.pathname) {
+      dismissError();
+      previousPath.current = location.pathname;
+    }
+  }, [dismissError, location.pathname]);
+
+  useEffect(() => {
+    if (!navigationOpen) {
+      return;
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setNavigationOpen(false);
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [navigationOpen]);
 
   return (
     <div className="app-frame">
-      <aside className="app-sidebar" aria-label={t("nav.primary")}>
-        <div className="app-brand">
-          <img src={logoUrl} alt="" className="h-9 w-9" width={36} height={36} />
+      <header className="mobile-app-bar">
+        <button
+          type="button"
+          className="mobile-nav-toggle"
+          aria-label={navigationOpen ? t("actions.close") : t("nav.primary")}
+          aria-controls="primary-navigation"
+          aria-expanded={navigationOpen}
+          onClick={() => setNavigationOpen((open) => !open)}
+        >
+          <Icon name={navigationOpen ? "close" : "menu"} size={22} />
+        </button>
+        <div className="mobile-app-brand">
+          <img src={logoUrl} alt="" width={24} height={24} />
           <span>{t("app.name")}</span>
         </div>
-        <nav className="mt-8 flex flex-1 flex-col gap-1 px-2">
+      </header>
+      <button
+        type="button"
+        className={`mobile-nav-scrim ${navigationOpen ? "mobile-nav-scrim-visible" : ""}`}
+        aria-label={t("actions.close")}
+        tabIndex={navigationOpen ? 0 : -1}
+        onClick={() => setNavigationOpen(false)}
+      />
+      <aside
+        id="primary-navigation"
+        className={`app-sidebar ${navigationOpen ? "app-sidebar-open" : ""}`}
+        aria-label={t("nav.primary")}
+      >
+        <div className="app-brand">
+          <img src={logoUrl} alt="" className="app-brand-logo" width={27} height={27} />
+          <span>{t("app.name")}</span>
+        </div>
+        <nav className="app-nav">
           {NAVIGATION.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
+              onClick={() => setNavigationOpen(false)}
               className={({ isActive }) => `app-nav-item ${isActive ? "app-nav-item-active" : ""}`}
             >
               <Icon name={item.icon} size={20} />
@@ -51,12 +103,16 @@ export function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <NavLink to="/about" className="app-nav-item mx-2 mb-3">
+        <NavLink
+          to="/about"
+          className="app-nav-item app-nav-about"
+          onClick={() => setNavigationOpen(false)}
+        >
           <Icon name="info" size={20} />
           <span>{t("nav.about")}</span>
         </NavLink>
       </aside>
-      <div className="min-w-0 flex-1 bg-surface-base">
+      <div className="app-content min-w-0 flex-1 bg-surface-base">
         <ErrorBanner />
         <UpdateBanner />
         {!initialized || loading ? (

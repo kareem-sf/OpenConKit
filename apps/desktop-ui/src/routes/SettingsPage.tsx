@@ -23,6 +23,66 @@ import { desktopApi, desktopRuntimeAvailable, errorCodeOf } from "../lib/ipc";
 import { useWorkspaceStore } from "../state/workspace";
 import { useThemeStore } from "../theme";
 
+function ResetOpenConKitDialog({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
+  const resetApplication = useWorkspaceStore((state) => state.resetApplication);
+  const busy = useWorkspaceStore((state) => state.busyAction === "reset");
+  const [confirmation, setConfirmation] = useState("");
+  const confirmed = confirmation === "RESET";
+
+  const reset = async () => {
+    if (await resetApplication()) {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <section
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="reset-openconkit-title"
+        aria-describedby="reset-openconkit-description"
+        className="modal-panel modal-panel-small"
+      >
+        <header className="modal-header">
+          <div>
+            <h2 id="reset-openconkit-title">{t("settings.resetTitle")}</h2>
+            <p id="reset-openconkit-description">{t("settings.resetWarning")}</p>
+          </div>
+        </header>
+        <div className="reset-confirmation">
+          <p>{t("settings.resetKeepsOriginals")}</p>
+          <label className="field-control">
+            <span>{t("settings.resetConfirmation")}</span>
+            <input
+              dir="ltr"
+              autoComplete="off"
+              spellCheck={false}
+              value={confirmation}
+              onChange={(event) => setConfirmation(event.target.value)}
+              placeholder={t("settings.resetConfirmationPhrase")}
+            />
+          </label>
+        </div>
+        <footer className="modal-actions">
+          <Button variant="secondary" disabled={busy} onClick={onClose}>
+            {t("actions.cancel")}
+          </Button>
+          <Button
+            variant="danger"
+            data-testid="reset-openconkit-confirm"
+            disabled={busy || !confirmed}
+            onClick={() => void reset()}
+          >
+            {busy ? t("settings.resetting") : t("settings.resetAction")}
+          </Button>
+        </footer>
+      </section>
+    </div>
+  );
+}
+
 /** Canonical app-home settings editor. */
 export function SettingsPage() {
   const { t, i18n } = useTranslation();
@@ -55,6 +115,7 @@ export function SettingsPage() {
     },
   );
   const [saved, setSaved] = useState(false);
+  const [showReset, setShowReset] = useState(false);
 
   if (!settings) {
     return null;
@@ -334,6 +395,22 @@ export function SettingsPage() {
           </Button>
         </footer>
       </form>
+      <section className="settings-section settings-reset-section" aria-labelledby="reset-title">
+        <div>
+          <h2 id="reset-title">{t("settings.reset")}</h2>
+          <p>{t("settings.resetHelp")}</p>
+        </div>
+        <div className="reset-panel">
+          <div>
+            <strong>{t("settings.resetTitle")}</strong>
+            <p>{t("settings.resetSummary")}</p>
+          </div>
+          <Button variant="danger" onClick={() => setShowReset(true)}>
+            {t("settings.resetAction")}
+          </Button>
+        </div>
+      </section>
+      {showReset ? <ResetOpenConKitDialog onClose={() => setShowReset(false)} /> : null}
     </main>
   );
 }

@@ -27,7 +27,6 @@ pub struct ReportLabels {
     pub evidence: String,
     pub source_hash: String,
     pub source_file: String,
-    pub project: String,
     pub run: String,
     pub tool_version: String,
     pub rule_set_version: String,
@@ -56,7 +55,6 @@ pub struct ReportLabels {
 pub struct ReportMetadata {
     pub source_filename: String,
     pub source_sha256: String,
-    pub project_id: String,
     pub run_id: String,
     pub tool_name: String,
     pub tool_version: String,

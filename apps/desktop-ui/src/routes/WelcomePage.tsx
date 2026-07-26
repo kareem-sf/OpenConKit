@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { SettingsPatch } from "@openconkit/contracts";
@@ -15,6 +16,10 @@ export function WelcomePage() {
   const saveSettings = useWorkspaceStore((state) => state.saveSettings);
   const busy = useWorkspaceStore((state) => state.busyAction === "settings");
   const home = useWorkspaceStore((state) => state.bootstrap?.home_path);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
 
   const complete = async () => {
     const patch: SettingsPatch = {
@@ -37,7 +42,7 @@ export function WelcomePage() {
       </div>
       <section className="welcome-card" aria-labelledby="welcome-title">
         <header className="welcome-header">
-          <img src={logoUrl} alt="" width={52} height={52} />
+          <img src={logoUrl} alt="" width={39} height={39} />
           <div>
             <span className="welcome-eyebrow">{t("app.name")}</span>
             <h1 id="welcome-title">{t("welcome.title")}</h1>
@@ -81,7 +86,12 @@ export function WelcomePage() {
             <Icon name="shield" size={17} />
             {t("welcome.noTelemetry")}
           </p>
-          <Button data-testid="welcome-continue" disabled={busy} onClick={() => void complete()}>
+          <Button
+            className="welcome-continue-button"
+            data-testid="welcome-continue"
+            disabled={busy}
+            onClick={() => void complete()}
+          >
             {busy ? t("status.saving") : t("welcome.continue")}
             <Icon name="chevron" size={17} className="rtl:rotate-180" />
           </Button>

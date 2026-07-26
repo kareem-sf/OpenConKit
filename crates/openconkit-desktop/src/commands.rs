@@ -24,10 +24,9 @@ use openconkit_ai_codex::{
 use openconkit_application::{
     AiAccountSnapshot, AiAnalysisRepository, AiLoginChallenge, AiLoginMode, AiPlanType,
     AiRateLimitSnapshot, AiRateLimitWindow, AiReviewScope, AiRuntimeStatus, AnalysisRunRepository,
-    AppSettings, ArchiveProject, BootstrapStatus, ExportRepository, HomeLayout, ImportSource,
-    ListAnalysisRuns, ListProjects, ListRunHistory, ListSourceRevisions, OpenAnalysisRun,
-    QuickImport, RegisterProject, RunDetails, RunHistoryEntry, SettingsPatch, SourceImportPolicy,
-    SourceRevisionRepository,
+    AppSettings, BootstrapStatus, ExportRepository, HomeLayout, ListAnalysisRuns, ListProjects,
+    ListRunHistory, ListSourceRevisions, OpenAnalysisRun, QuickImport, RunDetails, RunHistoryEntry,
+    SettingsPatch, SourceImportPolicy, SourceRevisionRepository,
 };
 use openconkit_domain::{
     AiAnalysis, AiAnalysisId, AiAnalysisLanguage, AiAnalysisStatus, AiGroundingStatus,
@@ -36,7 +35,7 @@ use openconkit_domain::{
     WorkbookDiagnostics,
 };
 use openconkit_storage::{
-    Database, FsSourceStorage, SettingsStore, SqliteAiAnalysisRepository,
+    request_factory_reset, Database, FsSourceStorage, SettingsStore, SqliteAiAnalysisRepository,
     SqliteAnalysisRunRepository, SqliteExportRepository, SqliteFindingRepository,
     SqliteProjectRepository, SqliteSourceRevisionRepository,
 };
@@ -105,6 +104,32 @@ pub fn update_settings(
     *settings = next_settings.clone();
     *update_channel = next_update_channel;
     Ok(next_settings)
+}
+
+/// Delete all OpenConKit-managed local data and restart into onboarding.
+#[tauri::command]
+pub async fn reset_openconkit(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    confirmation: String,
+) -> Result<(), DesktopError> {
+    if confirmation != "RESET" {
+        return Err(DesktopError::InvalidInput(
+            "reset confirmation did not match".to_string(),
+        ));
+    }
+    if !state.active_runs()?.is_empty() || !state.active_ai_runs()?.is_empty() {
+        return Err(DesktopError::InvalidInput(
+            "cannot reset while an analysis is running".to_string(),
+        ));
+    }
+    let _updater_guard = state.updater_operation.try_lock().map_err(|_| {
+        DesktopError::InvalidInput("cannot reset while an update is running".to_string())
+    })?;
+
+    state.codex.lock().await.invalidate().await;
+    request_factory_reset(&state.home)?;
+    app.restart()
 }
 
 /// Report local AI readiness without launching Codex or using the network.
@@ -928,71 +953,15 @@ impl Drop for ActiveAiRunGuard {
     }
 }
 
-/// List projects. Pass `include_archived` to include archived ones.
+/// List legacy storage groups so workbook revisions and analyses created by
+/// earlier versions remain available.
 #[tauri::command(rename_all = "snake_case")]
-pub fn list_projects(
+pub fn list_storage_groups(
     state: State<'_, AppState>,
     include_archived: bool,
 ) -> Result<Vec<Project>, DesktopError> {
     let repo = SqliteProjectRepository::new(&state.database);
     Ok(ListProjects::new(&repo).execute(include_archived)?)
-}
-
-/// Register a new project with the given kebab-case `id` and display `name`.
-#[tauri::command]
-pub fn register_project(
-    state: State<'_, AppState>,
-    id: String,
-    name: String,
-) -> Result<Project, DesktopError> {
-    let repo = SqliteProjectRepository::new(&state.database);
-    Ok(RegisterProject::new(&repo).execute(&id, &name)?)
-}
-
-/// Archive a project by id.
-#[tauri::command]
-pub fn archive_project(state: State<'_, AppState>, id: String) -> Result<(), DesktopError> {
-    let repo = SqliteProjectRepository::new(&state.database);
-    ArchiveProject::new(&repo).execute(&id)?;
-    Ok(())
-}
-
-/// Import a source workbook into an existing project using a registered
-/// tool's declared extension and size policy.
-#[tauri::command(rename_all = "snake_case")]
-pub async fn import_source(
-    state: State<'_, AppState>,
-    project_id: String,
-    tool_id: String,
-    source_path: String,
-) -> Result<SourceRevision, DesktopError> {
-    let home = state.home.clone();
-    let database = Arc::clone(&state.database);
-    let tools = Arc::clone(&state.tools);
-    tauri::async_runtime::spawn_blocking(move || {
-        let tool = tools
-            .get(&tool_id)
-            .ok_or_else(|| DesktopError::InvalidInput("unknown tool id".to_string()))?;
-        let capabilities = tool.input_capabilities();
-        let policy = SourceImportPolicy {
-            accepted_extensions: capabilities.accepted_extensions,
-            max_file_size_bytes: capabilities.max_file_size_bytes,
-        };
-        let projects = SqliteProjectRepository::new(&database);
-        let revisions = SqliteSourceRevisionRepository::new(&database);
-        let storage = FsSourceStorage::new(home);
-        ImportSource::new(&projects, &storage, &revisions)
-            .execute(
-                &project_id,
-                &tool_id,
-                Path::new(&source_path),
-                &policy,
-                Some(source_path.clone()),
-            )
-            .map_err(|err| DesktopError::Storage(err.to_string()))
-    })
-    .await
-    .map_err(|err| DesktopError::BackgroundTask(err.to_string()))?
 }
 
 /// Import a workbook into the built-in Quick Analyses project.

@@ -4,40 +4,26 @@ import type {
   BoqInspectorOutput,
   BootstrapStatus,
   Finding,
-  Project,
   RunDetails,
   RunHistoryEntry,
   SourceRevision,
   ToolManifest,
 } from "@openconkit/contracts";
 
-const PROJECT_ID = "tower-a-tender";
+const STORAGE_GROUP_ID = "quick-analyses";
 const SOURCE_ID = "00000000-0000-4000-8000-000000000101";
 const RUN_ID = "00000000-0000-4000-8000-000000000201";
 const RULE_SET = "2026.07.2";
 const STARTED = "2026-07-23T14:42:00Z";
 const FINISHED = "2026-07-23T14:42:07Z";
 
-const project: Project = {
-  id: PROJECT_ID,
-  name: "Tower A Tender",
-  created_at: "2026-07-20T09:00:00Z",
-  updated_at: FINISHED,
-  archived_at: null,
-  metadata: {
-    description: "Main works tender commercial review",
-    client: null,
-    location: "Cairo",
-  },
-};
-
 const source: SourceRevision = {
   id: SOURCE_ID,
-  project_id: PROJECT_ID,
+  project_id: STORAGE_GROUP_ID,
   sha256: "9f8e4b2d3c6a7f1e0d9b8c7a6f5e4d3c2b1a0f099f8e4b2d3c6a7f1e0d9b8c7a",
   original_filename: "Priced BOQ Rev 03.xlsx",
   original_path: null,
-  stored_path: `projects/${PROJECT_ID}/sources/revision/priced-boq-rev-03.xlsx`,
+  stored_path: `projects/${STORAGE_GROUP_ID}/sources/revision/priced-boq-rev-03.xlsx`,
   size_bytes: 2_486_272,
   imported_at: "2026-07-23T14:40:00Z",
   tool_id: "boq-inspector",
@@ -46,7 +32,7 @@ const source: SourceRevision = {
 
 const run: AnalysisRun = {
   id: RUN_ID,
-  project_id: PROJECT_ID,
+  project_id: STORAGE_GROUP_ID,
   source_revision_id: SOURCE_ID,
   tool_id: "boq-inspector",
   tool_version: "0.0.1",
@@ -232,7 +218,7 @@ const findingInputs: ReadonlyArray<{
 
 const findings: Finding[] = findingInputs.map((item) => ({
   id: item.id,
-  project_id: PROJECT_ID,
+  project_id: STORAGE_GROUP_ID,
   source_revision_id: SOURCE_ID,
   run_id: RUN_ID,
   rule_id: item.rule,
@@ -285,31 +271,13 @@ const output: BoqInspectorOutput = {
   normalized_rows: [],
 };
 
-const secondProject: Project = {
-  ...project,
-  id: "riverside-fit-out",
-  name: "Riverside Fit-out",
-  created_at: "2026-07-18T10:00:00Z",
-  updated_at: "2026-07-22T13:15:00Z",
-};
-
-const thirdProject: Project = {
-  ...project,
-  id: "hospital-extension",
-  name: "Hospital Extension",
-  created_at: "2026-07-10T08:00:00Z",
-  updated_at: "2026-07-21T10:00:00Z",
-};
-
 export interface PreviewData {
   bootstrap: BootstrapStatus;
   settings: AppSettings;
   manifests: ToolManifest[];
-  projects: Project[];
-  projectActivity: Record<
-    string,
-    { revisions: SourceRevision[]; runs: AnalysisRun[]; history: RunHistoryEntry[] }
-  >;
+  revisions: SourceRevision[];
+  runs: AnalysisRun[];
+  history: RunHistoryEntry[];
   runDetails: RunDetails;
 }
 
@@ -356,25 +324,18 @@ export function previewData(): PreviewData {
         route: "/tools/boq-inspector",
       },
     ],
-    projects: [project, secondProject, thirdProject],
-    projectActivity: {
-      [project.id]: {
-        revisions: [source],
-        runs: [run],
-        history: [
-          {
-            run,
-            source_sha256: source.sha256,
-            finding_count: findings.length,
-            export_count: 0,
-            ai_analysis_count: 0,
-            latest_ai_status: null,
-          },
-        ],
+    revisions: [source],
+    runs: [run],
+    history: [
+      {
+        run,
+        source_sha256: source.sha256,
+        finding_count: findings.length,
+        export_count: 0,
+        ai_analysis_count: 0,
+        latest_ai_status: null,
       },
-      [secondProject.id]: { revisions: [], runs: [], history: [] },
-      [thirdProject.id]: { revisions: [], runs: [], history: [] },
-    },
+    ],
     runDetails: {
       run,
       findings,

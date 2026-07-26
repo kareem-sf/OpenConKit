@@ -70,7 +70,6 @@ const PDF_TEMPLATE: &str = r##"
   #v(10pt)
   #field(l.source_file, m.source_filename)
   #field(l.source_hash, m.source_sha256)
-  #field(l.project, m.project_id)
   #field(l.run, m.run_id)
   #field(l.tool_version, m.tool_version)
   #field(l.rule_set_version, m.rule_set_version)
