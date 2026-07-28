@@ -32,4 +32,4 @@ tokio.workspace = true
 url.workspace = true
 
 [target.'cfg(windows)'.dependencies]
-rfd = { version = "0.16.0" }
+rfd = { version = "0.17.2" }
